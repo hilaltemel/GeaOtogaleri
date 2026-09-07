@@ -1,0 +1,2 @@
+*.cshtml linguist-language=HTML
+*.cs linguist-language=C#
