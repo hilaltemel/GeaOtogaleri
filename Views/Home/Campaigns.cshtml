@@ -1,0 +1,102 @@
+@model List<Car_Dealership.Models.Car>
+@{
+    ViewData["Title"] = "Kampanyalar";
+}
+
+<div class="container mt-5 pt-3 mb-5">
+    
+    <div class="d-flex justify-content-between align-items-center mb-5">
+        <h3 class="fw-bold" style="color: #112848;">FIRSAT ARAÇLARI</h3>
+    </div>
+
+    @if (Model != null && Model.Any())
+    {
+        // En yüksek indirim oranına sahip aracı "Hero (Vitrin)" olarak seç
+        var featuredCar = Model.OrderByDescending(c => ((c.FirstPrice!.Value - c.CurrentPrice) / c.FirstPrice.Value) * 100).First();
+        var remainingCars = Model.Where(c => c.Id != featuredCar.Id).ToList();
+        
+        // Yüzdelik indirim matematik hesabı
+        var featuredDiscount = (int)Math.Round(((featuredCar.FirstPrice!.Value - featuredCar.CurrentPrice) / featuredCar.FirstPrice.Value) * 100);
+
+        <!-- DEV EKRAN KAMPANYA KARTI -->
+        <div class="card border-0 shadow-lg mb-5 overflow-hidden rounded-4">
+            <div class="row g-0">
+                <div class="col-lg-8">
+                    @{ var featuredImg = featuredCar.Images?.FirstOrDefault()?.ImagePath; }
+                    @if (!string.IsNullOrEmpty(featuredImg))
+                    {
+                        <img src="~/images/@featuredImg" class="img-fluid w-100 h-100" style="object-fit: cover; min-height: 400px;" alt="Günün Fırsatı">
+                    }
+                </div>
+                <div class="col-lg-4 d-flex align-items-center" style="background-color: #f8f9fa;">
+                    <div class="card-body p-5">
+                        <span class="badge bg-danger px-3 py-2 mb-4 fs-6 shadow-sm">%@featuredDiscount İNDİRİM</span>
+                        <h6 class="text-muted text-uppercase mb-1" style="letter-spacing: 1px;">@featuredCar.Brand?.Name</h6>
+                        <h2 class="fw-bold text-dark mb-4">@featuredCar.CarModel?.Name</h2>
+                        
+                        <div class="mb-1">
+                            <span class="text-muted text-decoration-line-through fs-5">@featuredCar.FirstPrice.Value.ToString("N0") TL</span>
+                        </div>
+                        <div class="mb-5">
+                            <h1 class="fw-bold text-success mb-0">@featuredCar.CurrentPrice.ToString("N0") TL</h1>
+                        </div>
+                        
+                        <a asp-controller="Cars" asp-action="Details" asp-route-id="@featuredCar.Id" class="btn text-white fw-bold w-100 py-3 shadow-sm" style="background-color: #112848; font-size: 1.1rem;">
+                            Fırsatı İncele
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- DİĞER İNDİRİMLİ ARAÇLAR -->
+        @if (remainingCars.Any())
+        {
+            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 mt-2">
+                @foreach (var car in remainingCars)
+                {
+                    var discount = (int)Math.Round(((car.FirstPrice!.Value - car.CurrentPrice) / car.FirstPrice.Value) * 100);
+
+                    <div class="col">
+                        <a asp-controller="Cars" asp-action="Details" asp-route-id="@car.Id" class="text-dark text-decoration-none h-100 d-block">
+                            <div class="card h-100 shadow-sm border-0 transition-hover position-relative">
+                                
+                                <!-- Kırmızı İndirim Rozeti -->
+                                <div class="position-absolute top-0 end-0 m-3 z-1">
+                                    <span class="badge bg-danger shadow-sm py-2 px-3 fw-bold">%@discount</span>
+                                </div>
+
+                                <!-- Kapak Resmi -->
+                                @{ var img = car.Images?.FirstOrDefault()?.ImagePath; }
+                                @if (!string.IsNullOrEmpty(img))
+                                {
+                                    <img src="~/images/@img" class="card-img-top rounded-top" alt="Araç Görseli" style="height: 220px; object-fit: cover;">
+                                }
+
+                                <div class="card-body d-flex flex-column pt-4">
+                                    <p class="text-muted small fw-bold text-uppercase mb-1" style="letter-spacing: 1px;">@car.Brand?.Name</p>
+                                    <h5 class="card-title fw-bold text-dark mb-4">
+                                        @car.CarModel?.Name
+                                    </h5>
+                                    <div class="mt-auto pt-3 border-top">
+                                        <p class="text-muted text-decoration-line-through mb-0" style="font-size: 0.9rem;">@car.FirstPrice.Value.ToString("N0") TL</p>
+                                        <h4 class="fw-bold m-0 text-success">@car.CurrentPrice.ToString("N0") TL</h4>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                }
+            </div>
+        }
+    }
+    else
+    {
+        <!-- Sistemde Fiyatı Düşen Araç Yoksa Çıkacak Ekran -->
+        <div class="alert alert-light border-0 shadow-sm text-center p-5 mt-4">
+            <i class="bi bi-tags fs-1 text-muted mb-3 d-block"></i>
+            <h4 class="text-muted fw-bold">Şu an aktif bir kampanyamız bulunmamaktadır.</h4>
+            <p class="mb-0 text-muted">Size en iyi fırsatları sunmak için çalışıyoruz, bizi takip etmeye devam edin!</p>
+        </div>
+    }
+</div>

@@ -1,0 +1,271 @@
+@model Car_Dealership.Models.Car
+@{
+    ViewData["Title"] = "Yeni Araba Ekle";
+}
+
+<div class="container mt-5 pt-3 mb-5">
+    
+    <!-- Başlık ve Geri Dön Butonu -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="fw-bold" style="color: #112848;">Sisteme Yeni Araba Ekle</h3>
+        <a asp-action="Index" class="btn btn-outline-secondary shadow-sm">
+            <i class="bi bi-arrow-left me-1"></i> Listeye Dön
+        </a>
+    </div>
+
+    <!-- Form Kartı -->
+    <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+        <div class="card-body p-4 p-md-5 bg-white">
+            
+            <form asp-action="Create" method="post" enctype="multipart/form-data">
+                
+                <!-- Marka ve Model -->
+                <div class="row g-4 mb-4">
+                    <!-- MARKA SEÇİMİ VE EKLEME BUTONU -->
+                    <div class="form-group mb-4">
+                        <label class="form-label fw-bold text-uppercase text-muted" style="letter-spacing: 1px; font-size: 0.85rem;">MARKA</label>
+                        <select asp-for="BrandId" id="BrandId" class="form-select shadow-none" required>
+                            <option value="">-- Lütfen Bir Marka Seçin --</option>
+                            @foreach(var brand in ViewBag.Brands) 
+                            {
+                                <option value="@brand.Value">@brand.Text</option>
+                            }
+                            <!-- DİKKAT: Listenin en altına sihirli seçeneğimizi ekledik -->
+                            <option value="ADD_NEW_BRAND" class="fw-bold text-primary" style="color:#112848;">+ Yeni Marka Ekle</option>
+                        </select>
+                    </div>
+                    <div class="col-md-12">
+                        <label asp-for="CarModelId" class="form-label text-muted small fw-bold text-uppercase" style="letter-spacing: 0.5px;">Model</label>
+                        <select asp-for="CarModelId" class="form-select form-select-lg shadow-none fs-6" asp-items="ViewBag.Models">
+                            <option value="">-- Önce Marka Seçiniz --</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Renk -->
+                <div class="mb-4">
+                    <label asp-for="Color" class="form-label text-muted small fw-bold text-uppercase" style="letter-spacing: 0.5px;">Renk</label>
+                    <input asp-for="Color" class="form-control form-control-lg shadow-none fs-6" placeholder="Örn: Obsidyen Siyahı" />
+                </div>
+
+                <!-- Vites ve Yakıt -->
+                <div class="row g-4 mb-4">
+                    <div class="col-md-6">
+                        <label asp-for="TransmissionType" class="form-label text-muted small fw-bold text-uppercase" style="letter-spacing: 0.5px;">Vites Tipi</label>
+                        <select asp-for="TransmissionType" class="form-select form-select-lg shadow-none fs-6" asp-items="Html.GetEnumSelectList<Car_Dealership.Models.TransmissionType>()">
+                            <option value="">-- Vites Tipi Seçin --</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="FuelType" class="form-label text-muted small fw-bold text-uppercase" style="letter-spacing: 0.5px;">Yakıt Tipi</label>
+                        <select asp-for="FuelType" class="form-select form-select-lg shadow-none fs-6" asp-items="Html.GetEnumSelectList<Car_Dealership.Models.FuelType>()">
+                            <option value="">-- Yakıt Tipi Seçin --</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Özellikler -->
+                <div class="mb-4">
+                    <label asp-for="Features" class="form-label text-muted small fw-bold text-uppercase" style="letter-spacing: 0.5px;">Donanım ve Özellikler</label>
+                    <textarea asp-for="Features" class="form-control shadow-none" rows="5" style="resize: none;" placeholder="Aracın donanım özelliklerini detaylıca yazınız..."></textarea>
+                </div>
+
+                <!-- Fiyatlar -->
+                    <div class="row mb-4">
+                        <!-- Ekranda Görünen Tek Fiyat Alanı -->
+                        <div class="col-md-12">
+                            <div class="d-flex justify-content-between align-items-end mb-1">
+                                <label asp-for="CurrentPrice" class="form-label text-muted small fw-bold text-uppercase mb-0" style="letter-spacing: 0.5px;">Araç Fiyatı (₺)</label>
+                            </div>
+                            <input type="number" asp-for="CurrentPrice" id="CurrentPrice" class="form-control form-control-lg shadow-none" placeholder="Örn: 5000000" min="0" step="1" required />
+                            <small class="text-muted mt-2 d-inline-block"><i class="bi bi-info-circle me-1"></i> Girdiğiniz tutar, aracın hem ilk kayıt hem de güncel satış fiyatı olarak kaydedilecektir.</small>
+                        </div>
+                    </div>
+
+                <!-- Modern Checkbox'lar (Toggle Switch) -->
+                <div class="d-flex gap-5 mb-5 p-3 rounded-3" style="background-color: #f8f9fa;">
+                    <div class="form-check form-switch fs-5">
+                        <input asp-for="IsShowcase" class="form-check-input shadow-none" type="checkbox" role="switch" checked />
+                        <label asp-for="IsShowcase" class="form-check-label ms-2" style="font-size: 1rem; color: #112848;">Ana Sayfa Vitrininde Göster</label>
+                    </div>
+                    <div class="form-check form-switch fs-5">
+                        <input asp-for="IsOnSale" class="form-check-input shadow-none" type="checkbox" role="switch" checked />
+                        <label asp-for="IsOnSale" class="form-check-label ms-2" style="font-size: 1rem; color: #112848;">Satışta mı?</label>
+                    </div>
+                </div>
+
+                <!-- Fotoğraf Yükleme Alanı -->
+                <div class="p-4 mb-5 rounded-3 text-center" style="background-color: rgba(17, 40, 72, 0.02); border: 2px dashed rgba(17, 40, 72, 0.3);">
+                    <i class="bi bi-cloud-arrow-up-fill fs-2 mb-2" style="color: #112848;"></i>
+                    <h6 class="fw-bold mb-3" style="color: #112848;">Araba Görselleri Yükle</h6>
+                    <input type="file" name="images" multiple class="form-control shadow-none mx-auto mb-2" style="max-width: 400px;" required />
+                    <small class="text-muted">Vitrin görünümü için birden fazla yüksek çözünürlüklü resim seçebilirsiniz.</small>
+                </div>
+
+                <!-- Butonlar -->
+                <div class="d-flex gap-3">
+                    <button type="submit" class="btn text-white fw-bold px-5 py-3 shadow-sm" style="background-color: #112848; font-size: 1.05rem;">
+                        <i class="bi bi-plus-circle me-2"></i> Arabayı Sisteme Ekle
+                    </button>
+                    <a asp-action="Index" class="btn btn-light fw-bold px-5 py-3 text-muted border shadow-sm" style="font-size: 1.05rem;">İptal</a>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>
+<!-- MARKA EKLE MODAL -->
+<div class="modal fade" id="addBrandModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content rounded-4 border-0 shadow">
+            <div class="modal-header border-bottom-0 pb-0">
+                <h5 class="modal-title fw-bold" style="color: #112848;">Yeni Marka Ekle</h5>
+                <button type="button" class="btn-close shadow-none" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <input type="text" newBrandName" class="form-control form-control-lg shadow-none mb-3" placeholder="Örn: Tesla">
+                <button type="button" id="btnSaveBrand" class="btn text-white w-100 py-3 rounded-3 fw-bold" style="background-color: #112848;">Markayı Kaydet</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MODEL EKLE MODAL -->
+<div class="modal fade" id="addModelModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content rounded-4 border-0 shadow">
+            <div class="modal-header border-bottom-0 pb-0">
+                <h5 class="modal-title fw-bold" style="color: #112848;">Yeni Model Ekle</h5>
+                <button type="button" class="btn-close shadow-none" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="newModelBrandId">
+                <input type="text" id="newModelName" class="form-control form-control-lg shadow-none mb-3" placeholder="Örn: Model S">
+                <button type="button" id="btnSaveModel" class="btn text-white w-100 py-3 rounded-3 fw-bold" style="background-color: #112848;">Modeli Kaydet</button>
+            </div>
+        </div>
+    </div>
+</div>
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+    <script>
+        $(document).ready(function () {
+
+            // 1. MARKA DEĞİŞTİĞİNDE YAPILACAKLAR
+            $("#BrandId").change(function () {
+                var selectedBrandId = $(this).val();
+                var modelDropdown = $("#CarModelId"); 
+
+                if (selectedBrandId === "ADD_NEW_BRAND") {
+                    $("#addBrandModal").modal("show");
+                    $(this).val(""); 
+                    modelDropdown.empty().append('<option value="">-- Önce Marka Seçiniz --</option>');
+                } 
+                else if (selectedBrandId) {
+                    $.ajax({
+                        url: '/Admin/GetModelsByBrand',
+                        type: 'GET',
+                        data: { brandId: selectedBrandId },
+                        success: function (data) {
+                            modelDropdown.empty();
+                            modelDropdown.append('<option value="">-- Lütfen Bir Model Seçin --</option>');
+                            
+                            $.each(data, function (index, item) {
+                                var mId = item.value || item.Value || item.id || item.Id; 
+                                var mName = item.text || item.Text || item.name || item.Name;
+                                modelDropdown.append($('<option></option>').val(mId).text(mName));
+                            });
+
+                            modelDropdown.append('<option value="ADD_NEW" class="fw-bold text-primary" style="color:#112848;">+ Yeni Model Ekle</option>');
+                        },
+                        error: function (xhr, status, error) {
+                            console.error("Modeller çekilirken hata: ", error);
+                        }
+                    });
+                } else {
+                    modelDropdown.empty().append('<option value="">-- Önce Marka Seçiniz --</option>');
+                }
+            });
+
+            // 2. LİSTEDEN "YENİ MODEL EKLE" SEÇİLİRSE
+            $("#CarModelId").change(function () {
+                if ($(this).val() === "ADD_NEW") {
+                    var selectedBrand = $("#BrandId").val();
+                    $("#newModelBrandId").val(selectedBrand);
+                    $("#addModelModal").modal("show");
+                    $(this).val("");
+                }
+            });
+
+            // 3. YENİ MARKA KAYDETME (GELİŞMİŞ VE GÜVENLİ)
+            $("#btnSaveBrand").off("click").on("click", function (e) {
+                e.preventDefault(); // Sayfanın yanlışlıkla yenilenmesini kesin olarak engeller
+                
+                var brandName = $("#addBrandModal").find("input[type='text']").val();
+                console.log("Marka Kaydet butonuna basıldı. Girilen Değer:", brandName);
+                
+                if (!brandName || brandName.trim() === "") {
+                    alert("Lütfen marka adını boş bırakmayın!");
+                    return;
+                }
+
+                var btn = $(this);
+                var originalText = btn.text();
+                // Butonu kilitler ve kullanıcıya işlem yapıldığını hissettirir
+                btn.text("Kaydediliyor...").prop("disabled", true); 
+
+                $.ajax({
+                    // YENİ: URL'i Razor'a (C#) buldurtuyoruz, adresin şaşma ihtimali kalmıyor
+                    url: '@Url.Action("AddBrand", "Admin")',
+                    type: 'POST',
+                    data: { name: brandName.trim() },
+                    success: function (response) {
+                        console.log("Kayıt Başarılı:", response);
+                        
+                        // Listeye ekle ve seçili hale getir
+                        $("#BrandId option[value='ADD_NEW_BRAND']").before($('<option></option>').val(response.id).text(response.name));
+                        $("#BrandId").val(response.id).trigger('change');
+                        
+                        // Ekranı temizle ve Marka penceresini kapat
+                        $("#newBrandName").val(""); 
+                        $("#addBrandModal").modal("hide"); 
+                        
+                        // Model ekleme penceresini aç
+                        $("#newModelBrandId").val(response.id);
+                        setTimeout(function() { 
+                            $("#addModelModal").modal("show"); 
+                        }, 500); 
+                    },
+                    error: function (xhr, status, error) {
+                        console.error("Kayıt sırasında hata oluştu:", error);
+                        console.error("Detay:", xhr.responseText);
+                        // Arka planda aynı marka varsa veya çökerse fırlattığımız hatayı ekranda gösterir
+                        alert("Marka kaydedilemedi!\nSistem Mesajı: " + (xhr.responseText || error));
+                    },
+                    complete: function () {
+                        // İşlem bitince (başarılı veya başarısız) butonu eski haline getir
+                        btn.text(originalText).prop("disabled", false);
+                    }
+                });
+            });
+
+            // 4. YENİ MODEL KAYDETME
+            $("#btnSaveModel").click(function () {
+                var modelName = $("#addModelModal").find("input[type='text']").val();
+                var brandId = $("#newModelBrandId").val();
+                if(!modelName || !brandId) return;
+
+                $.post('/Admin/AddModel', { brandId: brandId, name: modelName }, function (response) {
+                    $("#CarModelId option[value='ADD_NEW']").before($('<option></option>').val(response.id).text(response.name));
+                    $("#CarModelId").val(response.id);
+                    $("#newModelName").val("");
+                    $("#addModelModal").modal("hide");
+                }).fail(function (xhr) {
+                    alert(xhr.responseText); 
+                });
+            });
+
+        });
+    </script>
+}

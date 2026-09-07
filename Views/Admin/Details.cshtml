@@ -1,0 +1,117 @@
+@model Car_Dealership.Models.Car
+@{
+    ViewData["Title"] = "Araç Detayları";
+}
+
+<div class="container mt-4 mb-5">
+    <!-- Üst Başlık ve Geri Butonu -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold mb-0" style="color: #112848;">Araç Detayları</h2>
+        <a asp-action="Index" class="btn btn-outline-secondary shadow-sm rounded-3">
+            <i class="bi bi-arrow-left me-1"></i> Listeye Dön
+        </a>
+    </div>
+
+    <!-- Üst Kısım: Görsel ve Temel Özellikler -->
+    <div class="row g-4 mb-4">
+        <!-- Sol Taraf: Görsel Galerisi -->
+        <div class="col-lg-7">
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden h-100">
+                <div id="carGallery" class="carousel slide h-100" data-bs-ride="carousel">
+                    <div class="carousel-inner h-100">
+                        @if (Model.Images != null && Model.Images.Any())
+                        {
+                            var isFirst = true;
+                            foreach (var image in Model.Images)
+                            {
+                                <div class="carousel-item h-100 @(isFirst ? "active" : "")">
+                                    <img src="~/images/@image.ImagePath" class="d-block w-100 h-100" style="object-fit: cover; aspect-ratio: 16/10;" alt="Araç Görseli">
+                                </div>
+                                isFirst = false;
+                            }
+                        }
+                        else
+                        {
+                            <div class="carousel-item active h-100">
+                                <img src="~/images/default-car.jpg" class="d-block w-100 h-100" style="object-fit: cover; aspect-ratio: 16/10;" alt="Görsel Yok">
+                            </div>
+                        }
+                    </div>
+                    @if (Model.Images != null && Model.Images.Count > 1)
+                    {
+                        <button class="carousel-control-prev" type="button" data-bs-target="#carGallery" data-bs-slide="prev">
+                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Önceki</span>
+                        </button>
+                        <button class="carousel-control-next" type="button" data-bs-target="#carGallery" data-bs-slide="next">
+                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Sonraki</span>
+                        </button>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Sağ Taraf: Fiyat ve Bilgiler -->
+        <div class="col-lg-5">
+            <div class="card border-0 shadow-sm rounded-4 h-100">
+                <div class="card-body p-4 p-sm-5 d-flex flex-column">
+                    
+                    <div class="mb-4 pb-3 border-bottom">
+                        <span class="text-muted small fw-bold text-uppercase" style="letter-spacing: 1px;">@Model.Brand?.Name</span>
+                        <h3 class="fw-bold mb-2 mt-1" style="color: #112848;">@Model.CarModel?.Name</h3>
+                        <h4 class="fw-bold text-success mb-0">₺@Model.CurrentPrice.ToString("N2")</h4>
+                    </div>
+
+                    <ul class="list-group list-group-flush mb-4 flex-grow-1">
+                        <li class="list-group-item d-flex justify-content-between px-0 py-3">
+                            <span class="text-muted fw-bold"><i class="bi bi-palette me-2"></i>Renk</span>
+                            <span class="fw-semibold text-dark">@Model.Color</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between px-0 py-3">
+                            <span class="text-muted fw-bold"><i class="bi bi-gear me-2"></i>Vites Tipi</span>
+                            <span class="fw-semibold text-dark">@Model.TransmissionType</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between px-0 py-3">
+                            <span class="text-muted fw-bold"><i class="bi bi-fuel-pump me-2"></i>Yakıt Tipi</span>
+                            <span class="fw-semibold text-dark">@Model.FuelType</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between px-0 py-3 border-bottom-0">
+                            <span class="text-muted fw-bold"><i class="bi bi-tag me-2"></i>Satış Durumu</span>
+                            @if (Model.IsOnSale)
+                            {
+                                <span class="badge bg-success rounded-pill px-3 py-2">Satışta</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-danger rounded-pill px-3 py-2">Satıldı</span>
+                            }
+                        </li>
+                    </ul>
+
+                    <div class="d-grid mt-auto">
+                        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn text-white fw-bold py-3 shadow-sm rounded-3 transition-hover" style="background-color: #112848; font-size: 1.05rem;">
+                            <i class="bi bi-pencil-square me-1"></i> Aracı Düzenle
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Alt Kısım: Donanım ve Açıklama -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-body p-4 p-sm-5">
+                    <h5 class="fw-bold mb-4 pb-2 border-bottom" style="color: #112848;">
+                        <i class="bi bi-card-text me-2"></i>Donanım ve Açıklama
+                    </h5>
+                    <p class="text-muted lh-lg mb-0" style="font-size: 0.95rem;">
+                        @Model.Features
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

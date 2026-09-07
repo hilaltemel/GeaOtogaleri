@@ -1,0 +1,182 @@
+﻿@using System.Linq
+@model IEnumerable<Car_Dealership.Models.Car>
+@{
+    ViewData["Title"] = "Ana Sayfa";
+}
+
+@section Hero {
+<!-- 1. TAM EKRAN KAYDIRMALI VİTRİN -->
+<div id="geaHeroSlider" class="carousel slide carousel-fade" data-bs-ride="carousel">
+    
+    <!-- Alt kısımdaki sayfa noktaları -->
+    <div class="carousel-indicators">
+        <button type="button" data-bs-target="#geaHeroSlider" data-bs-slide-to="0" class="active"></button>
+        <button type="button" data-bs-target="#geaHeroSlider" data-bs-slide-to="1"></button>
+        <button type="button" data-bs-target="#geaHeroSlider" data-bs-slide-to="2"></button>
+    </div>
+
+    <!-- Resimlerin bulunduğu ana sahne -->
+    <div class="carousel-inner">
+            <!-- 1. RESİM -->
+        <div class="carousel-item active" style="height: calc(100vh - 57px);">
+            <img src="~/images/homePage1.jpeg" class="d-block w-100" style="object-fit: cover; height: 100%;" alt="Banner 1" />
+        </div>
+
+       <div class="carousel-item" style="height: calc(100vh - 57px);">
+            <img src="~/images/homePage2.jpeg" class="d-block w-100" style="object-fit: cover; height: 100%;" alt="Banner 2" />
+        </div>
+
+        <div class="carousel-item" style="height: calc(100vh - 57px);">
+            <img src="~/images/homePage3.jpeg" class="d-block w-100" style="object-fit: cover; height: 100%;" alt="Banner 3" />
+        </div>
+    </div>
+
+    <!-- Sağa ve Sola Kaydırma Okları -->
+    <button class="carousel-control-prev" type="button" data-bs-target="#geaHeroSlider" data-bs-slide="prev">
+        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+    </button>
+    <button class="carousel-control-next" type="button" data-bs-target="#geaHeroSlider" data-bs-slide="next">
+        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+    </button>
+</div>
+}
+
+<div class="container mt-5 pt-5 mb-5">
+    
+    <!-- BAŞLIK VE TÜMÜNÜ GÖSTER BÖLÜMÜ -->
+    <div class="position-relative mb-4 text-center border-bottom pb-3" style="border-bottom: 2px solid #112848 !important;">
+        <h3 class="fw-bold d-inline-block m-0" style="letter-spacing: 3px; color: #112848;">VİTRİN ARAÇLAR</h3>
+        
+    </div>
+
+    <!-- YATAY KAYDIRILABİLİR (SCROLLABLE) VİTRİN ALANI -->
+    <div class="overflow-x-auto pb-3" style="scrollbar-width: thin;">
+        <div class="d-flex flex-nowrap" style="gap: 1.5rem;">
+            @foreach (var car in (List<Car_Dealership.Models.Car>)ViewBag.Showcase)
+            {
+                <!-- Her bir kartın sabit genişlikte yan yana durmasını sağla -->
+                <div style="flex: 0 0 280px; max-width: 280px;">
+                    <a asp-controller="Cars" asp-action="Details" asp-route-id="@car.Id" class="text-dark text-decoration-none h-100 d-block">
+                        <div class="card h-100 shadow-sm border-0 transition-hover">
+                            
+                            <!-- Vitrin Resmi -->
+                            @{ var kapakResmi = car.Images?.FirstOrDefault()?.ImagePath; }
+                            @if (!string.IsNullOrEmpty(kapakResmi))
+                            {
+                                <img src="~/images/@kapakResmi" class="card-img-top rounded-top" alt="Araç Görseli" style="height: 200px; object-fit: cover;">
+                            }
+                            else
+                            {
+                                <div class="card-img-top rounded-top bg-secondary d-flex align-items-center justify-content-center text-white" style="height: 200px;">
+                                    <i class="bi bi-camera fs-1"></i>
+                                </div>
+                            }
+
+                            <div class="card-body d-flex flex-column pt-3">
+                                <p class="text-muted mb-1 text-uppercase" style="font-size: 0.75rem; letter-spacing: 1px;">
+                                    @car.Brand?.Name
+                                </p>
+                                <h6 class="card-title fw-bold text-dark mb-3 text-truncate">
+                                    @car.CarModel?.Name
+                                </h6>
+                                <div class="mt-auto pt-2 border-top">
+                                    <h5 class="fw-bold m-0" style="color: #112848; font-size: 1.1rem;">@car.CurrentPrice.ToString("N0") TL</h5>
+                                </div>
+                            </div>
+
+                        </div>
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
+
+        <!-- VİTRİN ARAÇLAR -->
+    <div class="overflow-x-auto pb-3 mb-5" style="scrollbar-width: thin;">
+    </div>
+
+    <!-- YENİ GELENLER BÖLÜMÜ -->
+   <div class="position-relative mb-4 text-center border-bottom pb-3" style="border-bottom: 2px solid #112848 !important;">
+        <h3 class="fw-bold d-inline-block m-0" style="letter-spacing: 3px; color: #112848;">YENİ GELENLER</h3>
+        
+    </div>
+
+    <!-- Ekranda sabit 4 tane duracak 4'lü kolon yapısı -->
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
+       @foreach (var car in (List<Car_Dealership.Models.Car>)ViewBag.NewArrivals!)
+        {
+            <div class="col">
+                <a asp-controller="Cars" asp-action="Details" asp-route-id="@car.Id" class="text-dark text-decoration-none h-100 d-block">
+                    <div class="card h-100 shadow-sm border-0 transition-hover">
+                        
+                        <!-- Resim -->
+                        @{ var kapakResmi = car.Images?.FirstOrDefault()?.ImagePath; }
+                        @if (!string.IsNullOrEmpty(kapakResmi))
+                        {
+                            <img src="~/images/@kapakResmi" class="card-img-top rounded-top" alt="Araç Görseli" style="height: 200px; object-fit: cover;">
+                        }
+                        else
+                        {
+                            <div class="card-img-top rounded-top bg-secondary d-flex align-items-center justify-content-center text-white" style="height: 200px;">
+                                <i class="bi bi-camera fs-1"></i>
+                            </div>
+                        }
+
+                        <div class="card-body d-flex flex-column pt-3">
+                            <p class="text-muted mb-1 text-uppercase" style="font-size: 0.75rem; letter-spacing: 1px;">
+                                @car.Brand?.Name
+                            </p>
+                            <h6 class="card-title fw-bold text-dark mb-3 text-truncate">
+                                @car.CarModel?.Name
+                            </h6>
+                            <div class="mt-auto pt-2 border-top">
+                                <h5 class="fw-bold m-0" style="color: #112848; font-size: 1.1rem;">@car.CurrentPrice.ToString("N0") TL</h5>
+                            </div>
+                        </div>
+
+                    </div>
+                </a>
+            </div>
+        }
+    </div>
+    <!-- KAMPANYALI ARAÇLAR BÖLÜMÜ -->
+    <div class="position-relative mb-4 text-center border-bottom pb-3 mt-5" style="border-bottom: 2px solid #112848 !important;">
+            <h3 class="fw-bold d-inline-block m-0" style="letter-spacing: 3px; color: #112848;">KAMPANYALI ARAÇLAR</h3>
+            
+            <!-- Sağ alt köşeye hizalanmış Tümünü Gör linki -->
+            <a asp-controller="Home" asp-action="Campaigns" class="position-absolute end-0 bottom-0 mb-3 text-decoration-none fw-bold" style="color: #112848; font-size: 0.95rem;">
+                Tümünü Gör <i class="bi bi-chevron-right ms-1"></i>
+            </a>
+        </div>
+        
+        <div class="row g-4">
+            @foreach (var car in (List<Car_Dealership.Models.Car>)ViewBag.Campaigns)
+            {
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <a asp-controller="Cars" asp-action="Details" asp-route-id="@car.Id" class="text-dark text-decoration-none h-100 d-block">
+                        <div class="card h-100 shadow-sm border-0 transition-hover position-relative">
+                            
+                            <!-- Dinamik Yüzde Hesaplama ve Renkli Rozet -->
+                            @{ var discount = (int)Math.Round(((car.FirstPrice!.Value - car.CurrentPrice) / car.FirstPrice!.Value) * 100); }
+                            <span class="badge position-absolute top-0 end-0 m-3 px-3 py-2 rounded-pill shadow-sm" style="background-color: #112848; z-index: 2;">
+                                %@discount İndirim
+                            </span>
+
+                            <img src="~/images/@car.Images?.FirstOrDefault()?.ImagePath" class="card-img-top rounded-top" style="height: 200px; object-fit: cover;" alt="@car.Brand?.Name">
+
+                            <div class="card-body d-flex flex-column pt-3">
+                                <p class="text-muted mb-1 text-uppercase" style="font-size: 0.75rem; letter-spacing: 1px;">@car.Brand?.Name</p>
+                                <h6 class="card-title fw-bold text-dark mb-3 text-truncate">@car.CarModel?.Name</h6>
+                                
+                                <div class="mt-auto pt-2 border-top">
+                                    <span class="text-muted text-decoration-line-through small d-block" style="font-size: 0.85rem;">@car.FirstPrice?.ToString("N0") TL</span>
+                                    <h5 class="fw-bold m-0 text-success">@car.CurrentPrice.ToString("N0") TL</h5>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
+</div>

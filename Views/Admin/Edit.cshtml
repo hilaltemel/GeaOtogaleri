@@ -1,0 +1,103 @@
+@model Car_Dealership.Models.Car
+@{
+    ViewData["Title"] = "Aracı Düzenle";
+}
+
+<div class="container mt-5 pt-3 mb-5">
+    
+    <!-- Başlık ve Geri Dön Butonu -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="fw-bold" style="color: #112848;">Araç Bilgilerini Güncelle</h3>
+        <a asp-action="Index" class="btn btn-outline-secondary shadow-sm">
+            <i class="bi bi-arrow-left me-1"></i> Listeye Dön
+        </a>
+    </div>
+
+    <!-- Form Kartı -->
+    <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+        <div class="card-body p-4 p-md-5 bg-white">
+            
+            <form asp-action="Edit" method="post" enctype="multipart/form-data">
+                <input type="hidden" asp-for="Id" />
+                
+                <!-- Marka ve Model -->
+                <div class="row g-4 mb-4">
+                    <div class="col-md-6">
+                        <label asp-for="BrandId" class="form-label text-muted small fw-bold text-uppercase" style="letter-spacing: 0.5px;">Marka</label>
+                        <select asp-for="BrandId" class="form-select form-select-lg shadow-none fs-6" asp-items="ViewBag.Brands"></select>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="CarModelId" class="form-label text-muted small fw-bold text-uppercase" style="letter-spacing: 0.5px;">Model</label>
+                        <select asp-for="CarModelId" class="form-select form-select-lg shadow-none fs-6" asp-items="ViewBag.Models"></select>
+                    </div>
+                </div>
+
+                <!-- Renk -->
+                <div class="mb-4">
+                    <label asp-for="Color" class="form-label text-muted small fw-bold text-uppercase" style="letter-spacing: 0.5px;">Renk</label>
+                    <input asp-for="Color" class="form-control form-control-lg shadow-none fs-6" />
+                </div>
+
+                <!-- Vites ve Yakıt -->
+                <div class="row g-4 mb-4">
+                    <div class="col-md-6">
+                        <label asp-for="TransmissionType" class="form-label text-muted small fw-bold text-uppercase" style="letter-spacing: 0.5px;">Vites Tipi</label>
+                        <select asp-for="TransmissionType" class="form-select form-select-lg shadow-none fs-6" asp-items="Html.GetEnumSelectList<Car_Dealership.Models.TransmissionType>()"></select>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="FuelType" class="form-label text-muted small fw-bold text-uppercase" style="letter-spacing: 0.5px;">Yakıt Tipi</label>
+                        <select asp-for="FuelType" class="form-select form-select-lg shadow-none fs-6" asp-items="Html.GetEnumSelectList<Car_Dealership.Models.FuelType>()"></select>
+                    </div>
+                </div>
+
+                <!-- Özellikler -->
+                <div class="mb-4">
+                    <label asp-for="Features" class="form-label text-muted small fw-bold text-uppercase" style="letter-spacing: 0.5px;">Donanım ve Özellikler</label>
+                    <textarea asp-for="Features" class="form-control shadow-none" rows="5" style="resize: none;"></textarea>
+                </div>
+
+                <!-- Fiyatlar -->
+                <div class="row g-4 mb-4">
+                    <div class="col-md-6">
+                        <label asp-for="FirstPrice" class="form-label text-muted small fw-bold text-uppercase" style="letter-spacing: 0.5px;">İlk Kayıt Fiyatı (₺)</label>
+                        <input asp-for="FirstPrice" class="form-control form-control-lg shadow-none fs-6" type="number" step="0.01" readonly/>
+                        <small class="text-muted mt-2 d-block"><i class="bi bi-info-circle me-1"></i> İndirim oranını hesaplamak için bu fiyat sabit tutulur.</small>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="CurrentPrice" class="form-label small fw-bold text-uppercase" style="letter-spacing: 0.5px; color: #112848;">Güncel / Satış Fiyatı (₺)</label>
+                        <input asp-for="CurrentPrice" class="form-control form-control-lg shadow-none fs-6 fw-bold" style="border: 2px solid rgba(17, 40, 72, 0.2);" type="number" step="0.01" />
+                    </div>
+                </div>
+
+                <!-- Modern Checkbox'lar (Toggle Switch) -->
+                <div class="d-flex gap-5 mb-5 p-3 rounded-3" style="background-color: #f8f9fa;">
+                    <div class="form-check form-switch fs-5">
+                        <input asp-for="IsShowcase" class="form-check-input shadow-none" type="checkbox" role="switch" />
+                        <label asp-for="IsShowcase" class="form-check-label ms-2" style="font-size: 1rem; color: #112848;">Ana Sayfa Vitrininde Göster</label>
+                    </div>
+                    <div class="form-check form-switch fs-5">
+                        <input asp-for="IsOnSale" class="form-check-input shadow-none" type="checkbox" role="switch" />
+                        <label asp-for="IsOnSale" class="form-check-label ms-2" style="font-size: 1rem; color: #112848;">Satışta mı?</label>
+                    </div>
+                </div>
+
+                <!-- Fotoğraf Yükleme Alanı -->
+                <div class="p-4 mb-5 rounded-3 text-center" style="background-color: rgba(17, 40, 72, 0.02); border: 2px dashed rgba(17, 40, 72, 0.3);">
+                    <i class="bi bi-cloud-arrow-up-fill fs-2 mb-2" style="color: #112848;"></i>
+                    <h6 class="fw-bold mb-3" style="color: #112848;">Yeni Fotoğraflar Ekle (Opsiyonel)</h6>
+                    <input type="file" name="newImages" multiple class="form-control shadow-none mx-auto mb-2" style="max-width: 400px;" />
+                    <small class="text-muted">Eğer buraya yeni bir fotoğraf yüklemezseniz, arabanın mevcut fotoğrafları korunacaktır.</small>
+                </div>
+
+                <!-- Butonlar -->
+                <div class="d-flex gap-3">
+                    <button type="submit" class="btn text-white fw-bold px-5 py-3 shadow-sm" style="background-color: #112848; font-size: 1.05rem;">
+                        <i class="bi bi-check2-circle me-2"></i> Değişiklikleri Kaydet
+                    </button>
+                    <a asp-action="Index" class="btn btn-light fw-bold px-5 py-3 text-muted border shadow-sm" style="font-size: 1.05rem;">İptal</a>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>
