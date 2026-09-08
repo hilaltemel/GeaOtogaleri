@@ -19,7 +19,15 @@
             
             <form asp-action="Edit" method="post" enctype="multipart/form-data">
                 <input type="hidden" asp-for="Id" />
-                
+
+                <div class="form-group mb-3">
+                    <label asp-for="IsSecondHand" class="control-label fw-bold">Araç Durumu</label>
+                    <select asp-for="IsSecondHand" class="form-select" id="IsSecondHandSelect">
+                        <option value="false">Sıfır Araç</option>
+                        <option value="true">İkinci El Araç</option>
+                    </select>
+                </div>
+                                
                 <!-- Marka ve Model -->
                 <div class="row g-4 mb-4">
                     <div class="col-md-6">
@@ -29,6 +37,86 @@
                     <div class="col-md-6">
                         <label asp-for="CarModelId" class="form-label text-muted small fw-bold text-uppercase" style="letter-spacing: 0.5px;">Model</label>
                         <select asp-for="CarModelId" class="form-select form-select-lg shadow-none fs-6" asp-items="ViewBag.Models"></select>
+                    </div>
+                </div>
+                <!-- Yeni Ortak Özellikler -->
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="Series" class="control-label">Seri</label>
+                        <input asp-for="Series" class="form-control" placeholder="Örn: M Sport, Urban vb." />
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="Year" class="control-label">Yıl</label>
+                        <input asp-for="Year" class="form-control" placeholder="Örn: 2023" />
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="EnginePower" class="control-label">Motor Gücü (HP)</label>
+                        <input asp-for="EnginePower" class="form-control" placeholder="Örn: 120" />
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="EngineCapacity" class="control-label">Motor Hacmi (cc)</label>
+                        <input asp-for="EngineCapacity" class="form-control" placeholder="Örn: 1400" />
+                    </div>
+                    
+                    <!-- Enum'lar için otomatik Dropdown (Seçim) Menüleri -->
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="BodyType" class="control-label">Kasa Tipi</label>
+                        <select asp-for="BodyType" class="form-select" asp-items="Html.GetEnumSelectList<Car_Dealership.Models.BodyType>()">
+                            <option value="">Seçiniz...</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="Drivetrain" class="control-label">Çekiş Tipi</label>
+                        <select asp-for="Drivetrain" class="form-select" asp-items="Html.GetEnumSelectList<Car_Dealership.Models.Drivetrain>()">
+                            <option value="">Seçiniz...</option>
+                        </select>
+                    </div>
+                    <div class="col-md-12 mb-3">
+                        <div class="form-check form-switch">
+                            <input asp-for="HasWarranty" class="form-check-input" type="checkbox" />
+                            <label asp-for="HasWarranty" class="form-check-label">Fabrika/Bayi Garantisi Var Mı?</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sadece İkinci El Alanları (Başlangıçta JavaScript ile gizlenecek/gösterilecek) -->
+                <div id="secondHandSection" class="p-3 mb-4 rounded border bg-light" style="display: none;">
+                    <h5 class="text-secondary mb-3"><i class="bi bi-car-front"></i> İkinci El Detayları</h5>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Mileage" class="control-label">Kilometre</label>
+                            <input asp-for="Mileage" class="form-control" placeholder="Örn: 45000" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Plate" class="control-label">Plaka</label>
+                            <input asp-for="Plate" class="form-control" placeholder="Örn: 34 ABC 123" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="PaintAndChangedStatus" class="control-label">Boya ve Değişen</label>
+                            <input asp-for="PaintAndChangedStatus" class="form-control" placeholder="Örn: Sağ ön çamurluk boyalı" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="InspectionDate" class="control-label">Muayene Tarihi</label>
+                            <input asp-for="InspectionDate" type="date" class="form-control" />
+                        </div>
+                        
+                        <!-- Düzeltilmiş Güvenli Dropdown'lar -->
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="HeavyDamageRecord" class="control-label text-danger fw-bold">Ağır Hasar Kaydı</label>
+                            <select asp-for="HeavyDamageRecord" class="form-select">
+                                <option value="">Belirtilmemiş</option>
+                                <option value="true">Var</option>
+                                <option value="false">Yok</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="IsTradeInEligible" class="control-label text-success fw-bold">Takas Durumu</label>
+                            <select asp-for="IsTradeInEligible" class="form-select">
+                                <option value="">Belirtilmemiş</option>
+                                <option value="true">Takasa Uygun</option>
+                                <option value="false">Takasa Uygun Değil</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
 
@@ -48,12 +136,6 @@
                         <label asp-for="FuelType" class="form-label text-muted small fw-bold text-uppercase" style="letter-spacing: 0.5px;">Yakıt Tipi</label>
                         <select asp-for="FuelType" class="form-select form-select-lg shadow-none fs-6" asp-items="Html.GetEnumSelectList<Car_Dealership.Models.FuelType>()"></select>
                     </div>
-                </div>
-
-                <!-- Özellikler -->
-                <div class="mb-4">
-                    <label asp-for="Features" class="form-label text-muted small fw-bold text-uppercase" style="letter-spacing: 0.5px;">Donanım ve Özellikler</label>
-                    <textarea asp-for="Features" class="form-control shadow-none" rows="5" style="resize: none;"></textarea>
                 </div>
 
                 <!-- Fiyatlar -->
@@ -101,3 +183,29 @@
         </div>
     </div>
 </div>
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    
+    <script>
+        $(document).ready(function () {
+            var conditionSelect = $("#IsSecondHandSelect");
+            var secondHandSection = $("#secondHandSection");
+
+            function toggleSecondHandFields() {
+                // ASP.NET Core bazen bool değerleri "True" gönderebilir, 
+                // bu yüzden toLowerCase() ile sağlama alıyoruz.
+                if (conditionSelect.val().toLowerCase() === "true") {
+                    secondHandSection.fadeIn('fast'); // Animasyonlu açılış
+                } else {
+                    secondHandSection.fadeOut('fast'); // Animasyonlu kapanış
+                }
+            }
+
+            // Sayfa ilk yüklendiğinde, aracın mevcut durumuna göre kutuyu aç veya gizle
+            toggleSecondHandFields();
+
+            // Kullanıcı seçimi değiştirdiğinde anlık olarak tetikle
+            conditionSelect.change(toggleSecondHandFields);
+        });
+    </script>
+}

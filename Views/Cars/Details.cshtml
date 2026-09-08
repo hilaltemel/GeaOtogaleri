@@ -103,19 +103,61 @@
     </div>
 
     <!-- ALT BÖLÜM: Donanım ve Açıklama -->
-    <div class="row mt-4">
-        <div class="col-12">
-            <div class="card border-0 shadow-sm rounded-4">
-                <div class="card-header bg-white border-bottom-0 pt-4 pb-0 px-4 px-md-5">
-                    <h5 class="fw-bold" style="color: #112848;"><i class="bi bi-card-list me-2"></i>Donanım ve Açıklama</h5>
-                </div>
-                <div class="card-body p-4 p-md-5 pt-3">
-                    <p class="text-muted mb-0" style="line-height: 1.8; font-size: 1.05rem;">
-                        @(string.IsNullOrEmpty(Model.Features) ? "Bu araç için henüz detaylı donanım bilgisi girilmemiştir." : Model.Features)
-                    </p>
-                </div>
+    <div class="col-12">
+        <!-- Ortak Özellikler Alanı -->
+        <div class="card mb-4 border-0 shadow-sm rounded-4">
+            <div class="card-body p-4">
+                <h5 class="mb-4" style="color: #112848;"><i class="bi bi-info-circle me-2"></i>Temel Araç Bilgileri</h5>
+                <dl class="row mb-0" style="font-size: 0.95rem;">
+                    <dt class="col-sm-4 text-muted">Araç Durumu</dt>
+                    <dd class="col-sm-8 fw-bold">@(Model.IsSecondHand ? "İkinci El" : "Sıfır")</dd>
+
+                    <dt class="col-sm-4 text-muted">Seri / Yıl</dt>
+                    <dd class="col-sm-8">@Model.Series - @Model.Year</dd>
+
+                    <dt class="col-sm-4 text-muted">Motor</dt>
+                    <dd class="col-sm-8">@Model.EnginePower HP / @Model.EngineCapacity cc</dd>
+
+                    <dt class="col-sm-4 text-muted">Kasa / Çekiş</dt>
+                    <dd class="col-sm-8">@Model.BodyType / @Model.Drivetrain</dd>
+
+                    <dt class="col-sm-4 text-muted">Garanti</dt>
+                    <dd class="col-sm-8">@(Model.HasWarranty ? "Mevcut" : "Yok")</dd>
+                </dl>
             </div>
         </div>
+
+        <!-- Sadece İkinci El İse Görünecek Alan -->
+        @if (Model.IsSecondHand)
+        {
+            <div class="card mb-4 border-0 shadow-sm rounded-4" style="background-color: #f8f9fa;">
+                <div class="card-body p-4">
+                    <h5 class="mb-4 text-secondary"><i class="bi bi-car-front me-2"></i>İkinci El Detayları</h5>
+                    <dl class="row mb-0" style="font-size: 0.95rem;">
+                        <dt class="col-sm-4 text-muted">Kilometre</dt>
+                        <dd class="col-sm-8 fw-bold">@string.Format("{0:N0} km", Model.Mileage)</dd>
+
+                        <dt class="col-sm-4 text-muted">Plaka</dt>
+                        <dd class="col-sm-8">@(string.IsNullOrEmpty(Model.Plate) ? "-" : Model.Plate)</dd>
+
+                        <dt class="col-sm-4 text-muted">Boya / Değişen</dt>
+                        <dd class="col-sm-8">@(string.IsNullOrEmpty(Model.PaintAndChangedStatus) ? "Belirtilmemiş" : Model.PaintAndChangedStatus)</dd>
+
+                        <dt class="col-sm-4 text-muted">Muayene Tarihi</dt>
+                        <dd class="col-sm-8">@(Model.InspectionDate?.ToString("dd/MM/yyyy") ?? "Belirtilmemiş")</dd>
+
+                        <dt class="col-sm-4 text-muted">Ağır Hasar Kaydı</dt>
+                        <dd class="col-sm-8 @(Model.HeavyDamageRecord == true ? "text-danger fw-bold" : "")">
+                            @(Model.HeavyDamageRecord == true ? "Var" : (Model.HeavyDamageRecord == false ? "Yok" : "Belirtilmemiş"))
+                        </dd>
+
+                        <dt class="col-sm-4 text-muted">Takas Durumu</dt>
+                        <dd class="col-sm-8 @(Model.IsTradeInEligible == true ? "text-success fw-bold" : "")">
+                            @(Model.IsTradeInEligible == true ? "Takasa Uygun" : (Model.IsTradeInEligible == false ? "Uygun Değil" : "Belirtilmemiş"))
+                        </dd>
+                    </dl>
+                </div>
+            </div>
+        }
     </div>
-    
 </div>

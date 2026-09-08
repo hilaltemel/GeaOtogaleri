@@ -129,7 +129,7 @@ namespace Car_Dealership.Controllers
             existingCar.Color = car.Color;
             existingCar.TransmissionType = car.TransmissionType;
             existingCar.FuelType = car.FuelType;
-            existingCar.Features = car.Features;
+
             if (existingCar.FirstPrice == 0)
             {
                 existingCar.FirstPrice = car.CurrentPrice; 
@@ -139,6 +139,24 @@ namespace Car_Dealership.Controllers
             existingCar.CurrentPrice = car.CurrentPrice;
             existingCar.IsOnSale = car.IsOnSale;
             existingCar.IsShowcase = car.IsShowcase;
+            
+            // --- YENİ EKLENEN ORTAK ÖZELLİKLER ---
+            existingCar.IsSecondHand = car.IsSecondHand;
+            existingCar.Series = car.Series;
+            existingCar.Year = car.Year;
+            existingCar.EnginePower = car.EnginePower;
+            existingCar.EngineCapacity = car.EngineCapacity;
+            existingCar.BodyType = car.BodyType;
+            existingCar.Drivetrain = car.Drivetrain;
+            existingCar.HasWarranty = car.HasWarranty;
+
+            // --- YENİ EKLENEN İKİNCİ EL ÖZELLİKLERİ ---
+            existingCar.Mileage = car.Mileage;
+            existingCar.Plate = car.Plate;
+            existingCar.PaintAndChangedStatus = car.PaintAndChangedStatus;
+            existingCar.InspectionDate = car.InspectionDate;
+            existingCar.HeavyDamageRecord = car.HeavyDamageRecord;
+            existingCar.IsTradeInEligible = car.IsTradeInEligible;
 
             // 3. YENİ RESİM YÜKLENDİYSE İŞLE 
             if (newImages != null && newImages.Count > 0)
