@@ -4,6 +4,7 @@ using Car_Dealership.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Car_Dealership.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260909093808_AddAppointmentSystem")]
+    partial class AddAppointmentSystem
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -37,7 +40,10 @@ namespace Car_Dealership.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<long?>("CarId")
+                    b.Property<int?>("CarId")
+                        .HasColumnType("int");
+
+                    b.Property<long?>("CarId1")
                         .HasColumnType("bigint");
 
                     b.Property<DateTime>("CreatedAt")
@@ -57,7 +63,7 @@ namespace Car_Dealership.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CarId");
+                    b.HasIndex("CarId1");
 
                     b.ToTable("Appointments");
                 });
@@ -658,7 +664,7 @@ namespace Car_Dealership.Migrations
                 {
                     b.HasOne("Car_Dealership.Models.Car", "Car")
                         .WithMany()
-                        .HasForeignKey("CarId");
+                        .HasForeignKey("CarId1");
 
                     b.Navigation("Car");
                 });

@@ -1,0 +1,99 @@
+@model IEnumerable<Car_Dealership.Models.Appointment>
+@{
+    ViewData[index: "Title"] = "Müşteri Randevuları";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container mt-5 mb-5">
+    
+    <!-- Sayfa Başlığı -->
+    <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom" style="border-bottom-color: #112848 !important;">
+        <h3 class="fw-bold m-0" style="color: #112848;">
+            <i class="bi bi-calendar-check me-2"></i>Gelen Randevu Talepleri
+        </h3>
+        <span class="badge rounded-pill bg-light text-dark border py-2 px-3 shadow-sm">
+            Toplam: @Model.Count() Randevu
+        </span>
+    </div>
+
+    <!-- Randevu Tablosu -->
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead style="background-color: #112848; color: white;">
+                        <tr>
+                            <th class="px-4 py-3 fw-normal">Müşteri Adı Soyadı</th>
+                            <th class="py-3 fw-normal">İletişim</th>
+                            <th class="py-3 fw-normal">Randevu Tarihi ve Saati</th>
+                            <th class="py-3 fw-normal">İlgilenilen Araç</th>
+                            <th class="px-4 py-3 fw-normal text-end">Talep Oluşturma Tarihi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (!Model.Any())
+                        {
+                            <tr>
+                                <td colspan="5" class="text-center py-5 text-muted">
+                                    <i class="bi bi-inbox fs-2 d-block mb-2"></i>
+                                    Henüz hiç randevu talebi bulunmuyor.
+                                </td>
+                            </tr>
+                        }
+                        else
+                        {
+                            foreach (var item in Model)
+                            {
+                                // Zaten C# bloğunda olduğumuz için doğrudan kodu yazıyoruz
+                                bool isPast = false;
+                                
+                                if (!string.IsNullOrEmpty(item.AppointmentTime))
+                                {
+                                    isPast = item.AppointmentDate.Date < DateTime.Now.Date || 
+                                            (item.AppointmentDate.Date == DateTime.Now.Date && int.Parse(item.AppointmentTime.Split(':')[0]) <= DateTime.Now.Hour);
+                                }
+                                
+                                <tr class="@(isPast ? "bg-light" : "")" style="@(isPast ? "opacity: 0.7;" : "")">
+                                    
+                                    <!-- İsim -->
+                                    <td class="px-4 py-3 fw-bold text-dark">@item.FirstName @item.LastName</td>
+                                    
+                                    <!-- Telefon -->
+                                    <td class="py-3">
+                                        <a href="tel:@item.PhoneNumber" class="text-decoration-none text-primary fw-semibold">
+                                            <i class="bi bi-telephone-fill me-1 small"></i> @item.PhoneNumber
+                                        </a>
+                                    </td>
+                                    
+                                    <!-- Randevu Zamanı -->
+                                    <td class="py-3">
+                                        <span class="badge @(isPast ? "bg-secondary" : "bg-success") rounded-pill px-3 py-2 shadow-sm">
+                                            <i class="bi bi-clock me-1"></i> @item.AppointmentDate.ToString(format: "dd.MM.yyyy") | @item.AppointmentTime
+                                        </span>
+                                    </td>
+                                    
+                                    <!-- Araç -->
+                                    <td class="py-3">
+                                        @if (item.Car != null)
+                                        {
+                                            <span class="fw-bold" style="color: #112848;">@item.Car.Brand?.Name @item.Car.CarModel?.Name</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted fst-italic">Belirtilmedi</span>
+                                        }
+                                    </td>
+                                    
+                                    <!-- Oluşturulma Anı -->
+                                    <td class="px-4 py-3 text-end text-muted small">
+                                        @item.CreatedAt.ToString(format: "dd.MM.yyyy HH:mm")
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

@@ -55,65 +55,19 @@
             @foreach (var car in (List<Car_Dealership.Models.Car>)ViewBag.Showcase)
             {
                 <!-- Her bir kartın sabit genişlikte yan yana durmasını sağla -->
-                <div style="flex: 0 0 280px; max-width: 280px;">
-                    <a asp-controller="Cars" asp-action="Details" asp-route-id="@car.Id" class="text-dark text-decoration-none h-100 d-block">
-                        <div class="card h-100 shadow-sm border-0 transition-hover">
-                            
-                            <!-- Vitrin Resmi -->
-                            @{ var kapakResmi = car.Images?.FirstOrDefault()?.ImagePath; }
-                            @if (!string.IsNullOrEmpty(kapakResmi))
-                            {
-                                <img src="~/images/@kapakResmi" class="card-img-top rounded-top" alt="Araç Görseli" style="height: 200px; object-fit: cover;">
-                            }
-                            else
-                            {
-                                <div class="card-img-top rounded-top bg-secondary d-flex align-items-center justify-content-center text-white" style="height: 200px;">
-                                    <i class="bi bi-camera fs-1"></i>
-                                </div>
-                            }
-
-                            <div class="card-body d-flex flex-column pt-3">
-                                <p class="text-muted mb-1 text-uppercase" style="font-size: 0.75rem; letter-spacing: 1px;">
-                                    @car.Brand?.Name
-                                </p>
-                                <h6 class="card-title fw-bold text-dark mb-3 text-truncate">
-                                    @car.CarModel?.Name
-                                </h6>
-                                <div class="mt-auto pt-2 border-top">
-                                    <h5 class="fw-bold m-0" style="color: #112848; font-size: 1.1rem;">@car.CurrentPrice.ToString("N0") TL</h5>
-                                </div>
-                            </div>
-
-                        </div>
-                    </a>
-                </div>
-            }
-        </div>
-    </div>
-
-        <!-- VİTRİN ARAÇLAR -->
-    <div class="overflow-x-auto pb-3 mb-5" style="scrollbar-width: thin;">
-    </div>
-
-    <!-- YENİ GELENLER BÖLÜMÜ -->
-   <div class="position-relative mb-4 text-center border-bottom pb-3" style="border-bottom: 2px solid #112848 !important;">
-        <h3 class="fw-bold d-inline-block m-0" style="letter-spacing: 3px; color: #112848;">YENİ GELENLER</h3>
-        
-    </div>
-
-    <!-- Ekranda sabit 4 tane duracak 4'lü kolon yapısı -->
-    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
-       @foreach (var car in (List<Car_Dealership.Models.Car>)ViewBag.NewArrivals!)
-        {
-            <div class="col">
-                <a asp-controller="Cars" asp-action="Details" asp-route-id="@car.Id" class="text-dark text-decoration-none h-100 d-block">
-                    <div class="card h-100 shadow-sm border-0 transition-hover">
+            <div style="flex: 0 0 280px; max-width: 280px;">
+                
+                <!-- KARTIN KENDİSİ EN DIŞTA OLACAK -->
+                <div class="card h-100 shadow-sm border-0 transition-hover d-flex flex-column">
+                    
+                    <!-- SADECE RESİM VE YAZILAR LİNK İÇİNDE OLACAK -->
+                    <a asp-controller="Cars" asp-action="Details" asp-route-id="@car.Id" class="text-dark text-decoration-none d-flex flex-column" style="flex: 1;">
                         
-                        <!-- Resim -->
-                        @{ var kapakResmi = car.Images?.FirstOrDefault()?.ImagePath; }
+                        <!-- Vitrin Resmi -->
+                        @{ string? kapakResmi = car.Images?.FirstOrDefault()?.ImagePath; }
                         @if (!string.IsNullOrEmpty(kapakResmi))
                         {
-                            <img src="~/images/@kapakResmi" class="card-img-top rounded-top" alt="Araç Görseli" style="height: 200px; object-fit: cover;">
+                            <img src="~/images/@kapakResmi" class="card-img-top rounded-top" alt="Araç Görseli" style="height: 200px; object-fit: cover;" />
                         }
                         else
                         {
@@ -133,9 +87,73 @@
                                 <h5 class="fw-bold m-0" style="color: #112848; font-size: 1.1rem;">@car.CurrentPrice.ToString("N0") TL</h5>
                             </div>
                         </div>
+                    </a>
 
+                    <!-- BUTON LİNKİN DIŞINDA, KARTIN EN ALTINDA (FOOTER) YER ALACAK -->
+                    <div class="card-footer bg-transparent border-0 pt-0 pb-3">
+                        <button type="button" class="btn btn-outline-primary w-100 fw-bold rounded-pill py-2" 
+                                data-bs-toggle="modal" data-bs-target="#appointmentModal" 
+                                onclick="setAppointmentCar(@car.Id)"
+                                style="border-color: #112848; color: #112848; transition: all 0.3s ease;">
+                            <i class="bi bi-calendar-check me-1"></i> Randevu Al
+                        </button>
                     </div>
-                </a>
+                </div>
+            </div>
+            }
+        </div>
+    </div>
+    <div class="overflow-x-auto pb-3 mb-5" style="scrollbar-width: thin;">
+    </div>
+
+    <!-- YENİ GELENLER BÖLÜMÜ -->
+   <div class="position-relative mb-4 text-center border-bottom pb-3" style="border-bottom: 2px solid #112848 !important;">
+        <h3 class="fw-bold d-inline-block m-0" style="letter-spacing: 3px; color: #112848;">YENİ GELENLER</h3>
+        
+    </div>
+
+    <!-- Ekranda sabit 4 tane duracak 4'lü kolon yapısı -->
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
+       @foreach (var car in (List<Car_Dealership.Models.Car>)ViewBag.NewArrivals!)
+        {
+            <div class="col">
+                
+                <div class="card h-100 shadow-sm border-0 transition-hover">
+                    <a asp-controller="Cars" asp-action="Details" asp-route-id="@car.Id" class="text-dark text-decoration-none h-100 d-block">
+                        <!-- Resim -->
+                        @{ var kapakResmi = car.Images?.FirstOrDefault()?.ImagePath; }
+                        @if (!string.IsNullOrEmpty(kapakResmi))
+                        {
+                            <img src="~/images/@kapakResmi" class="card-img-top rounded-top" alt="Araç Görseli" style="height: 200px; object-fit: cover;">
+                        }
+                        else
+                        {
+                            <div class="card-img-top rounded-top bg-secondary d-flex align-items-center justify-content-center text-white" style="height: 200px;">
+                                <i class="bi bi-camera fs-1"></i>
+                            </div>
+                        }
+                        <div class="card-body d-flex flex-column pt-3">
+                            <p class="text-muted mb-1 text-uppercase" style="font-size: 0.75rem; letter-spacing: 1px;">
+                                @car.Brand?.Name
+                            </p>
+                            <h6 class="card-title fw-bold text-dark mb-3 text-truncate">
+                                @car.CarModel?.Name
+                            </h6>
+                            <div class="mt-auto pt-2 border-top">
+                                <h5 class="fw-bold m-0" style="color: #112848; font-size: 1.1rem;">@car.CurrentPrice.ToString("N0") TL</h5>
+                            </div>
+                        </div>
+                    </a>
+                    <!-- BUTON LİNKİN DIŞINDA, KARTIN EN ALTINDA (FOOTER) YER ALACAK -->
+                    <div class="card-footer bg-transparent border-0 pt-0 pb-3">
+                        <button type="button" class="btn btn-outline-primary w-100 fw-bold rounded-pill py-2" 
+                                data-bs-toggle="modal" data-bs-target="#appointmentModal" 
+                                onclick="setAppointmentCar(@car.Id)"
+                                style="border-color: #112848; color: #112848; transition: all 0.3s ease;">
+                            <i class="bi bi-calendar-check me-1"></i> Randevu Al
+                        </button>
+                    </div>
+                </div>
             </div>
         }
     </div>
@@ -153,9 +171,9 @@
             @foreach (var car in (List<Car_Dealership.Models.Car>)ViewBag.Campaigns)
             {
                 <div class="col-lg-3 col-md-6 mb-4">
-                    <a asp-controller="Cars" asp-action="Details" asp-route-id="@car.Id" class="text-dark text-decoration-none h-100 d-block">
-                        <div class="card h-100 shadow-sm border-0 transition-hover position-relative">
-                            
+                    <div class="card h-100 shadow-sm border-0 transition-hover position-relative">
+                        <a asp-controller="Cars" asp-action="Details" asp-route-id="@car.Id" class="text-dark text-decoration-none h-100 d-block">
+                        
                             <!-- Dinamik Yüzde Hesaplama ve Renkli Rozet -->
                             @{ var discount = (int)Math.Round(((car.FirstPrice!.Value - car.CurrentPrice) / car.FirstPrice!.Value) * 100); }
                             <span class="badge position-absolute top-0 end-0 m-3 px-3 py-2 rounded-pill shadow-sm" style="background-color: #112848; z-index: 2;">
@@ -173,10 +191,75 @@
                                     <h5 class="fw-bold m-0 text-success">@car.CurrentPrice.ToString("N0") TL</h5>
                                 </div>
                             </div>
+                        </a>
+                        <!-- BUTON LİNKİN DIŞINDA, KARTIN EN ALTINDA (FOOTER) YER ALACAK -->
+                        <div class="card-footer bg-transparent border-0 pt-0 pb-3">
+                            <button type="button" class="btn btn-outline-primary w-100 fw-bold rounded-pill py-2" 
+                                    data-bs-toggle="modal" data-bs-target="#appointmentModal" 
+                                    onclick="setAppointmentCar(@car.Id)"
+                                    style="border-color: #112848; color: #112848; transition: all 0.3s ease;">
+                                <i class="bi bi-calendar-check me-1"></i> Randevu Al
+                            </button>
                         </div>
-                    </a>
+                    </div>
                 </div>
             }
         </div>
     </div>
+    <!-- İKİNCİ EL ARAÇLAR VİTRİNİ -->
+    @if (ViewBag.UsedCars != null && ViewBag.UsedCars.Count > 0)
+    {
+        <div class="container mt-5 mb-5">
+            
+            <!-- Başlık Kısmı (Tasarımına uygun ortalanmış ve çizgili) -->
+            <div class="position-relative text-center border-bottom pb-3 mt-5 mb-4" style="border-bottom: 2px solid #112848 !important;">
+                
+                <h3 class="fw-bold m-0" style="letter-spacing: 3px; color: #112848;">İKİNCİ EL ARAÇLAR</h3>
+                
+                <!-- Tümünü Gör Butonu -->
+                <a asp-controller="Cars" asp-action="UsedCars" class="position-absolute end-0 top-50 translate-middle-y text-decoration-none fw-bold" style="color: #112848; font-size: 0.95rem;">
+                    Tümünü Gör <i class="bi bi-chevron-right ms-1"></i>
+                </a>
+
+            </div>
+            <!-- Araç Kartları -->
+            <div class="row g-4">
+                @foreach (Car_Dealership.Models.Car car in ViewBag.UsedCars)
+                {
+                    <div class="col-md-3">
+                        <div class="card border-0 shadow-sm h-100 rounded-3 transition-hover">
+                            <a href="/Cars/Details/@car.Id" class="text-dark text-decoration-none">
+                                
+                                <!-- Araç Görseli -->
+                                @if (car.Images != null && car.Images.Count > 0)
+                                {
+                                    <img src="~/images/@car.Images.First().ImagePath" class="card-img-top rounded-top-3" alt="@car.Brand?.Name @car.CarModel?.Name" style="height: 220px; object-fit: cover;" />
+                                }
+                                else
+                                {
+                                    <img src="~/images/default-car.jpg" class="card-img-top rounded-top-3" alt="Görsel Yok" style="height: 220px; object-fit: cover;" />
+                                }
+
+                                <!-- Kart İçeriği -->
+                                <div class="card-body p-3">
+                                    <span class="text-muted small fw-bold text-uppercase" style="letter-spacing: 1px;">@car.Brand?.Name</span>
+                                    <h5 class="fw-bold mb-3" style="color: #112848;">@car.CarModel?.Name</h5>
+                                    <h5 class="fw-bold mb-0">@car.CurrentPrice.ToString("N2") TL</h5>
+                                </div>
+                            </a>
+                            <!-- BUTON LİNKİN DIŞINDA, KARTIN EN ALTINDA (FOOTER) YER ALACAK -->
+                            <div class="card-footer bg-transparent border-0 pt-0 pb-3">
+                                <button type="button" class="btn btn-outline-primary w-100 fw-bold rounded-pill py-2" 
+                                        data-bs-toggle="modal" data-bs-target="#appointmentModal" 
+                                        onclick="setAppointmentCar(@car.Id)"
+                                        style="border-color: #112848; color: #112848; transition: all 0.3s ease;">
+                                    <i class="bi bi-calendar-check me-1"></i> Randevu Al
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    }
 </div>

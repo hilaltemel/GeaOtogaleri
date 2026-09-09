@@ -47,6 +47,22 @@ namespace Car_Dealership.Controllers
 
             return View(cars.OrderByDescending(c => c.Id).ToList());
         }
+        // RANDEVULAR LİSTESİ (Sadece Admin Görebilir)
+        public IActionResult Appointments()
+        {
+            // Veritabanındaki tüm randevuları, araç bilgileriyle birlikte çeker
+            // En yakın (veya en yeni) randevuyu en üstte görmek için tarihe göre sıralar
+            var appointments = _context.Appointments
+                .Include(a => a.Car)
+                    .ThenInclude(c => c!.Brand)
+                .Include(a => a.Car)
+                    .ThenInclude(c => c!.CarModel)
+                .OrderByDescending(a => a.AppointmentDate)
+                .ThenByDescending(a => a.AppointmentTime)
+                .ToList();
+
+            return View(appointments);
+        }
         // GET: Admin/Details/5
         public IActionResult Details(int? id)
         {

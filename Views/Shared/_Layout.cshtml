@@ -1,4 +1,7 @@
-﻿<!DOCTYPE html>
+﻿@using Microsoft.EntityFrameworkCore
+@inject Car_Dealership.Models.ApplicationDbContext _context
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -36,20 +39,45 @@
                         <li class="nav-item">
                             <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Home" && ViewContext.RouteData.Values["Action"]?.ToString() == "Index" ? "text-gea fw-bold" : "text-dark")" asp-area="" asp-controller="Home" asp-action="Index">Ana Sayfa</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Cars" ? "text-gea fw-bold" : "text-dark")" asp-area="" asp-controller="Cars" asp-action="Index">Araçlar</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Home" && ViewContext.RouteData.Values["Action"]?.ToString() == "Campaigns" ? "text-gea fw-bold" : "text-dark")" asp-area="" asp-controller="Home" asp-action="Campaigns">Kampanyalar</a>
-                        </li>
-                        @if (User.IsInRole("Admin"))
-                        {
-                            <li class="nav-item">
-                                <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Admin" ? "text-gea fw-bold" : "text-dark")" asp-area="" asp-controller="Admin" asp-action="Index">
-                                    <i class="bi bi-speedometer2 me-1"></i> Yönetim Paneli
-                                </a>
-                            </li>
-                        }
+                        <!-- Araçlar Açılır Menüsü (Dropdown) -->
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Cars" ? "text-gea fw-bold" : "text-dark")" href="#" id="vehiclesDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        Araçlar
+                    </a>
+                    <ul class="dropdown-menu shadow-sm border-0 mt-2" aria-labelledby="vehiclesDropdown">
+                        <!-- İleride CarsController içine Index yerine NewCars adında bir sayfa açarız, şimdilik Index'e gitsin -->
+                        <li><a class="dropdown-item py-2" asp-controller="Cars" asp-action="Index">Sıfır Araçlar</a></li>
+                        <li><a class="dropdown-item py-2" asp-controller="Cars" asp-action="UsedCars">İkinci El Araçlar</a></li>
+                        <li><a class="dropdown-item py-2" asp-controller="Home" asp-action="Campaigns">Kampanyalı Araçlar</a></li>
+                    </ul>
+                </li>
+
+                <!-- Admin ve Ziyaretçi Ayrımı -->
+                @if (User.Identity != null && User.Identity.IsAuthenticated && User.IsInRole("Admin"))
+                {
+                    <!-- Mevcut Yönetim Paneli Linki -->
+                    <li class="nav-item">
+                        <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Admin" && ViewContext.RouteData.Values["Action"]?.ToString() != "Appointments" ? "text-gea fw-bold" : "text-dark")" asp-controller="Admin" asp-action="Index">
+                            <i class="bi bi-speedometer2 me-1"></i> Yönetim Paneli
+                        </a>
+                    </li>
+                    
+                    <!-- YENİ: Sadece Admin Görür: Randevular Listesi -->
+                    <li class="nav-item">
+                        <a class="nav-link @(ViewContext.RouteData.Values["Action"]?.ToString() == "Appointments" ? "text-gea fw-bold" : "text-dark")" asp-controller="Admin" asp-action="Appointments">
+                            <i class="bi bi-calendar-check me-1"></i> Randevular
+                        </a>
+                    </li>
+                }
+                else
+                {
+                    <!-- Sadece Ziyaretçi/Müşteri Görür: Randevu Al Butonu -->
+                    <li class="nav-item ms-lg-3 d-flex align-items-center">
+                        <button type="button" class="btn fw-bold px-4 shadow-sm" data-bs-toggle="modal" data-bs-target="#appointmentModal" style="border-radius: 20px; background-color: #112848; color: white;">
+                            <i class="bi bi-calendar-check me-1"></i> Randevu Al
+                        </button>
+                    </li>
+                }
                     </ul>
                     
                     <!-- BÜYÜTEÇLİ ARAMA ÇUBUĞU VE PROFİL -->
@@ -159,9 +187,184 @@
             </div>
         </div>
     </footer>
+    <!-- RANDEVU MODAL EKRANI -->
+    <div class="modal fade" id="appointmentModal" tabindex="-1" aria-labelledby="appointmentModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content border-0 shadow-lg rounded-4">
+                
+                <!-- Modal Başlık -->
+                <div class="modal-header border-0" style="background-color: #112848; color: white; border-top-left-radius: 1rem; border-top-right-radius: 1rem;">
+                    <h5 class="modal-title fw-bold" id="appointmentModalLabel">
+                        <i class="bi bi-calendar-check me-2"></i>Randevu Oluştur
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Kapat"></button>
+                </div>
+                
+                <!-- Modal Form Gövdesi -->
+                <form id="appointmentForm" action="/Home/BookAppointment" method="post">
+                    <div class="modal-body p-4 p-md-5 bg-light">
+                        
+                        <p class="text-muted small mb-4">Lütfen iletişim bilgilerinizi ve randevu tercihlerinizi eksiksiz doldurun. Müşteri temsilcilerimiz sizinle iletişime geçecektir.</p>
+                        
+                        <!-- İsim ve Soyisim -->
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold text-secondary small">Adınız <span class="text-danger">*</span></label>
+                                <input type="text" name="FirstName" class="form-control form-control-lg shadow-sm border-0" required placeholder="Örn: Ahmet">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold text-secondary small">Soyadınız <span class="text-danger">*</span></label>
+                                <input type="text" name="LastName" class="form-control form-control-lg shadow-sm border-0" required placeholder="Örn: Yılmaz">
+                            </div>
+                        </div>
+                        
+                        <!-- Telefon -->
+                        <div class="mb-4">
+                            <label class="form-label fw-bold text-secondary small">Telefon Numarası <span class="text-danger">*</span></label>
+                            <input type="tel" name="PhoneNumber" class="form-control form-control-lg shadow-sm border-0" required placeholder="05XX XXX XX XX">
+                        </div>
+                        
+                        <!-- Tarih ve Saat -->
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold text-secondary small">Randevu Tarihi <span class="text-danger">*</span></label>
+                                <!-- Takvimden geçmiş günleri seçmeyi JavaScript ile engelleyeceğiz -->
+                                <input type="date" name="AppointmentDate" id="appointmentDateInput" class="form-control form-control-lg shadow-sm border-0" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold text-secondary small">Randevu Saati <span class="text-danger">*</span></label>
+                                <select name="AppointmentTime" id="appointmentTimeSelect" class="form-select form-select-lg shadow-sm border-0" required>
+                                    <option value="" disabled selected>Önce tarih seçiniz...</option>
+                                    <option value="08:00 - 09:00">08:00 - 09:00</option>
+                                    <option value="09:00 - 10:00">09:00 - 10:00</option>
+                                    <option value="10:00 - 11:00">10:00 - 11:00</option>
+                                    <option value="11:00 - 12:00">11:00 - 12:00</option>
+                                    <option value="12:00 - 13:00">12:00 - 13:00</option>
+                                    <option value="13:00 - 14:00">13:00 - 14:00</option>
+                                    <option value="14:00 - 15:00">14:00 - 15:00</option>
+                                    <option value="15:00 - 16:00">15:00 - 16:00</option>
+                                    <option value="16:00 - 17:00">16:00 - 17:00</option>
+                                    <option value="17:00 - 18:00">17:00 - 18:00</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <!-- İlgilenilen Araç -->
+                        <div class="mb-2">
+                            <label class="form-label fw-bold text-secondary small">İlgilendiğiniz Araç (İsteğe Bağlı)</label>
+                            <select name="CarId" id="CarId" class="form-select form-select-lg shadow-sm border-0">
+                                <option value="">Herhangi bir araç belirtmek istemiyorum</option>
+                                
+                                @{
+                                    // Sadece vitrinde olan veya satışta olan araçları listelemek daha mantıklıdır
+                                    var availableCars = _context.Cars
+                                        .Include(c => c.Brand)
+                                        .Include(c => c.CarModel)
+                                        .Where(c => c.IsOnSale) 
+                                        .ToList();
+                                }
+                                
+                                @foreach(var car in availableCars)
+                                {
+                                    var carCondition = car.IsSecondHand ? "İkinci El" : "Sıfır";
+                                    <option value="@car.Id">@car.Brand?.Name @car.CarModel?.Name (@car.Year) - @carCondition</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <!-- Alt Kısım (Butonlar) -->
+                    <div class="modal-footer border-0 p-4" style="background-color: #f8f9fa; border-bottom-left-radius: 1rem; border-bottom-right-radius: 1rem;">
+                        <button type="button" class="btn btn-outline-secondary fw-bold px-4 rounded-pill" data-bs-dismiss="modal">İptal</button>
+                        <button class="btn ..." data-bs-toggle="modal" data-bs-target="#appointmentModal" onclick="setAppointmentCar('')">
+                            <i class="bi bi-calendar-check me-2"></i> Randevu Al
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
+    <script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const dateInput = document.getElementById("appointmentDateInput");
+        const timeSelect = document.getElementById("appointmentTimeSelect");
+
+        if(dateInput && timeSelect) {
+            
+            // 1. GEÇMİŞ TARİHLERİ ENGELLE (Yerel saat dilimine tam uyumlu)
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            const todayString = `${year}-${month}-${day}`; // "2026-09-09" formatı
+            
+            dateInput.setAttribute('min', todayString);
+
+            // 2. TARİH SEÇİLDİĞİNDE SAATLERİ FİLTRELE
+            dateInput.addEventListener("change", function () {
+                const selectedDate = this.value;
+                const isToday = selectedDate === todayString;
+                const currentHour = new Date().getHours(); // İçinde bulunduğumuz saat (örn: 15)
+                
+                // Önce dropdown'ı sıfırla (tüm saatleri aç ve yazıları düzelt)
+                Array.from(timeSelect.options).forEach(option => {
+                    if (option.value !== "") {
+                        option.disabled = false;
+                        option.text = option.value; // Örn: "09:00 - 10:00 (DOLU)" ise temizle
+                        
+                        // EĞER BUGÜNSE: Geçmiş ve mevcut saatleri kapat
+                        if (isToday) {
+                            // "09:00 - 10:00" içinden '09' kısmını alıp sayıya (9) çeviriyoruz
+                            const slotStartHour = parseInt(option.value.split(':')[0], 10);
+                            
+                            // Eğer randevunun başlangıç saati, şu anki saate eşit veya daha küçükse kapat
+                            if (slotStartHour <= currentHour) {
+                                option.disabled = true;
+                                option.text = option.value + " (SÜRESİ GEÇTİ)";
+                            }
+                        }
+                    }
+                });
+
+                // 3. VERİTABANINDAN DOLU SAATLERİ ÇEK VE KAPAT
+                fetch(`/Home/GetBookedTimes?date=${selectedDate}`)
+                    .then(response => response.json())
+                    .then(bookedTimes => {
+                        Array.from(timeSelect.options).forEach(option => {
+                            // Eğer bu saat veritabanında doluysa ve süresi geçtiği için zaten kapatılmamışsa
+                            if (bookedTimes.includes(option.value)) {
+                                option.disabled = true;
+                                option.text = option.value + " (DOLU)";
+                            }
+                        });
+                    })
+                    .catch(error => console.error('Hata:', error));
+            });
+        }
+    });
+</script>
+<script>
+    // ARABA SEÇİMİNİ OTOMATİK YAPAN BAĞIMSIZ FONKSİYON
+    function setAppointmentCar(carId) {
+        // Modal içindeki açılır menüyü bul (ID'si CarId olmalı)
+        const carSelect = document.getElementById('CarId'); 
+        
+        if (carSelect) {
+            // Eğer carId boş gelirse (örn: Navbar'dan basıldığında) seçimi sıfırla
+            if(carId === '' || carId === null) {
+                carSelect.value = '';
+            } else {
+                // Karttan basıldıysa o arabanın ID'sini seçili yap
+                carSelect.value = carId;
+            }
+        } else {
+            console.error("HATA: 'CarId' ID'sine sahip dropdown menüsü bulunamadı!");
+        }
+    }
+</script>
 </body>
 </html>

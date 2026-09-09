@@ -15,7 +15,7 @@ public DbSet<CarImage> CarImages { get; set; }
 public DbSet<Brand> Brands { get; set; }
 public DbSet<CarModel> CarModels { get; set; }
 public DbSet<User> Users { get; set; }
-
+public DbSet<Appointment> Appointments { get; set; }
 protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
