@@ -45,10 +45,9 @@
                             Fırsatı İncele
                         </a>
                         <div class="mt-2">
-                            <button type="button" class="btn fw-bold px-4 py-2 rounded-pill text-white shadow-sm w-100" 
+                            <button type="button" class="btn text-white fw-bold w-100 py-3 shadow-sm" style="background-color: #112848; font-size: 1.1rem;" 
                                     data-bs-toggle="modal" data-bs-target="#appointmentModal" 
-                                    onclick="setAppointmentCar(@featuredCar.Id)"
-                                    style="background-color: #112848;">
+                                    onclick="setAppointmentCar(@featuredCar.Id)">
                                 <i class="bi bi-calendar-check me-1"></i> Bu Fırsat İçin Randevu Al
                             </button>
                         </div>
@@ -66,9 +65,8 @@
                     var discount = (int)Math.Round(((car.FirstPrice!.Value - car.CurrentPrice) / car.FirstPrice.Value) * 100);
 
                     <div class="col">
-                        <a asp-controller="Cars" asp-action="Details" asp-route-id="@car.Id" class="text-dark text-decoration-none h-100 d-block">
                             <div class="card h-100 shadow-sm border-0 transition-hover position-relative">
-                                
+                                <a asp-controller="Cars" asp-action="Details" asp-route-id="@car.Id" class="text-dark text-decoration-none h-100 d-block">
                                 <!-- Kırmızı İndirim Rozeti -->
                                 <div class="position-absolute top-0 end-0 m-3 z-1">
                                     <span class="badge bg-danger shadow-sm py-2 px-3 fw-bold">%@discount</span>
@@ -91,15 +89,16 @@
                                         <h4 class="fw-bold m-0 text-success">@car.CurrentPrice.ToString("N0") TL</h4>
                                     </div>
                                 </div>
+                                </a>
+                        
+                            <div class="mt-auto pt-3 px-4 text-center">
+                                <button type="button" class="btn text-white w-100 fw-bold rounded-pill py-2 mb-3" 
+                                        data-bs-toggle="modal" data-bs-target="#appointmentModal" 
+                                        onclick="setAppointmentCar(@car.Id)"
+                                        style="background-color: #112848;">
+                                    <i class="bi bi-calendar-check me-1"></i> Randevu Al
+                                </button>
                             </div>
-                        </a>
-                        <div class="mt-auto pt-3">
-                            <button type="button" class="btn btn-outline-primary w-100 fw-bold rounded-pill py-2" 
-                                    data-bs-toggle="modal" data-bs-target="#appointmentModal" 
-                                    onclick="setAppointmentCar(@car.Id)"
-                                    style="border-color: #112848; color: #112848;">
-                                <i class="bi bi-calendar-check me-1"></i> Randevu Al
-                            </button>
                         </div>
                     </div>
                 }

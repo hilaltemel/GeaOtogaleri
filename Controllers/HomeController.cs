@@ -86,6 +86,11 @@ public class HomeController : Controller
     [HttpPost]
     public IActionResult BookAppointment(Appointment model)
     {
+        var secilenArabaId = Request.Form["CarId"].ToString();
+        if (!string.IsNullOrEmpty(secilenArabaId))
+        {
+            model.CarId = Convert.ToInt64(secilenArabaId);
+        }
         if (ModelState.IsValid)
         {
             // Çifte Randevu Kontrolü: Aynı tarihte ve aynı saatte başka bir randevu var mı?

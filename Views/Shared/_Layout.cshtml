@@ -192,20 +192,18 @@
         <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content border-0 shadow-lg rounded-4">
                 
-                <!-- Modal Başlık -->
-                <div class="modal-header border-0" style="background-color: #112848; color: white; border-top-left-radius: 1rem; border-top-right-radius: 1rem;">
-                    <h5 class="modal-title fw-bold" id="appointmentModalLabel">
-                        <i class="bi bi-calendar-check me-2"></i>Randevu Oluştur
-                    </h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Kapat"></button>
-                </div>
-                
-                <!-- Modal Form Gövdesi -->
-                <form id="appointmentForm" action="/Home/BookAppointment" method="post">
-                    <div class="modal-body p-4 p-md-5 bg-light">
-                        
-                        <p class="text-muted small mb-4">Lütfen iletişim bilgilerinizi ve randevu tercihlerinizi eksiksiz doldurun. Müşteri temsilcilerimiz sizinle iletişime geçecektir.</p>
-                        
+                <!-- DİKKAT: FORM BURADA, EN DIŞTA BAŞLAMALI! -->
+                <form asp-controller="Home" asp-action="BookAppointment" method="post">
+                    
+                    <div class="modal-header border-0 pb-0">
+                        <h5 class="modal-title fw-bold" id="appointmentModalLabel">
+                            <i class="bi bi-calendar-check me-2"></i>Randevu Oluştur
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+
+                    <div class="modal-body p-4 pt-2">
+                        <p class="text-muted small mb-4">Lütfen iletişim bilgilerinizi ve randevu tercihlerinizi eksiksiz doldurun.</p>
                         <!-- İsim ve Soyisim -->
                         <div class="row g-3 mb-4">
                             <div class="col-md-6">
@@ -249,38 +247,42 @@
                             </div>
                         </div>
                         
-                        <!-- İlgilenilen Araç -->
-                        <div class="mb-2">
+                        <!-- İLGİLENDİĞİNİZ ARAÇ KISMI (KESİNLİKLE FORMUN İÇİNDE) -->
+                        <div class="mb-3 mt-3">
                             <label class="form-label fw-bold text-secondary small">İlgilendiğiniz Araç (İsteğe Bağlı)</label>
                             <select name="CarId" id="CarId" class="form-select form-select-lg shadow-sm border-0">
                                 <option value="">Herhangi bir araç belirtmek istemiyorum</option>
                                 
+                                <!-- Arabaları Listeleyen Döngü -->
                                 @{
-                                    // Sadece vitrinde olan veya satışta olan araçları listelemek daha mantıklıdır
                                     var availableCars = _context.Cars
                                         .Include(c => c.Brand)
                                         .Include(c => c.CarModel)
-                                        .Where(c => c.IsOnSale) 
+                                        .Where(c => c.IsOnSale)
                                         .ToList();
-                                }
-                                
-                                @foreach(var car in availableCars)
-                                {
-                                    var carCondition = car.IsSecondHand ? "İkinci El" : "Sıfır";
-                                    <option value="@car.Id">@car.Brand?.Name @car.CarModel?.Name (@car.Year) - @carCondition</option>
+
+                                    foreach(var car in availableCars)
+                                    {
+                                        var carCondition = car.IsSecondHand ? "İkinci El" : "Sıfır";
+                                        <option value="@car.Id">@car.Brand?.Name @car.CarModel?.Name (@car.Year) - @carCondition</option>
+                                    }
                                 }
                             </select>
                         </div>
+
                     </div>
-                    
-                    <!-- Alt Kısım (Butonlar) -->
-                    <div class="modal-footer border-0 p-4" style="background-color: #f8f9fa; border-bottom-left-radius: 1rem; border-bottom-right-radius: 1rem;">
-                        <button type="button" class="btn btn-outline-secondary fw-bold px-4 rounded-pill" data-bs-dismiss="modal">İptal</button>
-                        <button class="btn ..." data-bs-toggle="modal" data-bs-target="#appointmentModal" onclick="setAppointmentCar('')">
-                            <i class="bi bi-calendar-check me-2"></i> Randevu Al
+
+                    <div class="modal-footer border-0 p-4" style="background-color: #f8f9fa;">
+                        <button type="button" class="btn btn-light rounded-pill px-4 fw-bold" data-bs-dismiss="modal">İptal</button>
+                        <!-- SUBMIT BUTONU DA FORMUN İÇİNDE -->
+                        <button type="submit" class="btn text-white rounded-pill px-4 fw-bold shadow-sm" style="background-color: #112848;">
+                            <i class="bi bi-calendar-check me-2"></i> Randevuyu Onayla
                         </button>
                     </div>
+                
+                <!-- DİKKAT: FORM BURADA, EN DIŞTA KAPANMALI! -->
                 </form>
+
             </div>
         </div>
     </div>
