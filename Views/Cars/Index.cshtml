@@ -1,6 +1,6 @@
 @model List<Car_Dealership.Models.Car>
 @{
-    ViewData["Title"] = "Araçlar";
+    ViewData["Title"] = "Sıfır Araçlar";
 }
 
 <div class="container mt-5 pt-3 mb-5">
@@ -54,11 +54,36 @@
                                 <option value="4">Elektrik</option>
                             </select>
                         </div>
-
-                        <div class="d-grid gap-2">
-                            <button type="submit" class="btn text-white fw-bold shadow-sm" style="background-color: #112848;">Sonuçları Göster</button>
-                            <a asp-controller="Cars" asp-action="Index" class="btn btn-outline-secondary btn-sm">Filtreleri Temizle</a>
+                        <div class="mb-4">
+                            <label class="form-label text-muted small fw-bold">Kasa Tipi</label>
+                            <select name="bodyType" class="form-select form-select-sm shadow-none">
+                                <option value="">Tümü</option>
+                                <option value="1">Sedan</option>
+                                <option value="2">Hatchback</option>
+                                <option value="3">Station Wagon</option>
+                                <option value="4">SUV</option>
+                                <option value="5">Coupe</option>
+                                <option value="6">Cabriolet</option>
+                                <option value="7">Minivan / MPV</option>
+                                <option value="8">Panelvan</option>
+                                <option value="9">Pick-up</option>
+                            </select>
                         </div>
+                        <div class="mb-3">
+                            <label class="form-label text-muted small fw-bold">Çekiş Tipi</label>
+                            <select name="drivetrain" class="form-select form-select-sm shadow-none">
+                                <option value="">Tümü</option>
+                                <option value="1">Önden Çekiş</option>
+                                <option value="2">Arkadan İtiş</option>
+                                <option value="3">Dört Çeker (4x4)</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn text-white w-100 fw-bold mt-2" style="background-color: #112848;">
+                            Sonuçları Göster
+                        </button>
+                        <a asp-controller="Cars" asp-action="Index" class="btn btn-outline-secondary w-100 mt-2">
+                            Filtreleri Temizle
+                        </a>
                     </form>
                 </div>
             </div>
@@ -67,7 +92,7 @@
         <!-- SAĞ KOLON: ARAÇ KARTLARI -->
         <div class="col-lg-9">
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <h4 class="fw-bold mb-0" style="color: #112848;">ARAÇLAR</h4>
+                <h4 class="fw-bold mb-0" style="color: #112848;">SIFIR ARAÇLAR</h4>
                 <span class="badge text-bg-secondary px-3 py-2">@Model.Count Araç Bulundu</span>
             </div>
 

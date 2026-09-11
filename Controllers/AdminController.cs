@@ -20,7 +20,7 @@ namespace Car_Dealership.Controllers
 
         // GET: Admin/Index
         // Parantez içine 'searchQuery' ekledim. Eğer kimse arama yapmamışsa bu değer null gelecek.
-        public IActionResult Index(int? brandId, decimal? minPrice, decimal? maxPrice, int? fuelType, int? transmissionType)
+        public IActionResult Index(int? brandId, decimal? minPrice, decimal? maxPrice, int? fuelType, int? transmissionType, int? bodyType, int? drivetrain, bool? isTradeInEligible, bool? heavyDamageRecord)
         {
             var cars = _context.Cars
                             .Include(c => c.Images)
@@ -42,6 +42,19 @@ namespace Car_Dealership.Controllers
 
             if (transmissionType.HasValue)
                 cars = cars.Where(c => (int)c.TransmissionType == transmissionType.Value);
+            
+            // -- YENİ EKLENEN İKİNCİ EL FİLTRELERİ --
+            if (bodyType.HasValue)
+                cars = cars.Where(c => (int)c.BodyType == bodyType.Value);
+
+            if (drivetrain.HasValue)
+                cars = cars.Where(c => (int)c.Drivetrain == drivetrain.Value);
+
+            if (isTradeInEligible.HasValue)
+                cars = cars.Where(c => c.IsTradeInEligible == isTradeInEligible.Value);
+
+            if (heavyDamageRecord.HasValue)
+                cars = cars.Where(c => c.HeavyDamageRecord == heavyDamageRecord.Value);
 
             ViewBag.Brands = _context.Brands.ToList();
 

@@ -30,36 +30,92 @@ namespace Car_Dealership.Controllers
         }
 
         // Müşterilerin göreceği "Araçlar" listesi
-        public IActionResult Index(int? brandId, decimal? minPrice, decimal? maxPrice, int? fuelType, int? transmissionType)
+        // 1. Parametrelere int? bodyType ve int? drivetrain eklendi
+        public IActionResult Index(int? brandId, decimal? minPrice, decimal? maxPrice, int? fuelType, int? transmissionType, int? bodyType, int? drivetrain)
         {
-            // 1. Tüm araçları sorgulanabilir şekilde al
-            var cars = _context.Cars
-                            .Include(c => c.Images)
-                            .Include(c => c.Brand)
-                            .Include(c => c.CarModel)
-                            .AsQueryable();
+            // Temel Sorgu: Sadece SIFIR ve Satışta olan araçları getir
+            var query = _context.Cars
+                .Include(c => c.Brand)
+                .Include(c => c.CarModel)
+                .Include(c => c.Images)
+                .Where(c => c.IsOnSale && !c.IsSecondHand) // SIFIR ARAÇ KONTROLÜ
+                .AsQueryable();
 
-            // 2. Filtreler dolu geldiyse sorguya şartları ekle
+            // --- MEVCUT FİLTRELER ---
             if (brandId.HasValue)
-                cars = cars.Where(c => c.BrandId == brandId.Value);
-            
+                query = query.Where(c => c.BrandId == brandId.Value);
+
             if (minPrice.HasValue)
-                cars = cars.Where(c => c.CurrentPrice >= minPrice.Value);
-                
+                query = query.Where(c => c.CurrentPrice >= minPrice.Value);
+
             if (maxPrice.HasValue)
-                cars = cars.Where(c => c.CurrentPrice <= maxPrice.Value);
+                query = query.Where(c => c.CurrentPrice <= maxPrice.Value);
 
             if (fuelType.HasValue)
-                cars = cars.Where(c => (int)c.FuelType == fuelType.Value);
+                query = query.Where(c => (int)c.FuelType == fuelType.Value);
 
             if (transmissionType.HasValue)
-                cars = cars.Where(c => (int)c.TransmissionType == transmissionType.Value);
+                query = query.Where(c => (int)c.TransmissionType == transmissionType.Value);
 
-            // 3. Markaları filtreleme menüsü için sayfaya gönder
+            // --- YENİ EKLENEN FİLTRELER BURAYA GELECEK ---
+            if (bodyType.HasValue)
+                query = query.Where(c => (int)c.BodyType == bodyType.Value);
+
+            if (drivetrain.HasValue)
+                query = query.Where(c => (int)c.Drivetrain == drivetrain.Value);
+
             ViewBag.Brands = _context.Brands.ToList();
+            
+            // Sonuçları sırala ve View'a gönder
+            var cars = query.OrderByDescending(c => c.Id).ToList();
 
-            // 4. Sonuçları listeye çevir ve View'a gönder
-            return View(cars.OrderByDescending(c => c.Id).ToList());
+            return View(cars);
+        }
+        public IActionResult UsedCars(int? brandId, decimal? minPrice, decimal? maxPrice, int? fuelType, int? transmissionType, int? bodyType, int? drivetrain, bool? isTradeInEligible, bool? heavyDamageRecord)
+        {
+            // Sadece Satışta olan ve İKİNCİ EL olan araçları çek
+            var query = _context.Cars
+                .Include(c => c.Brand)
+                .Include(c => c.CarModel)
+                .Include(c => c.Images)
+                .Where(c => c.IsOnSale && c.IsSecondHand)
+                .AsQueryable();
+
+            // -- MEVCUT FİLTRELER --
+            if (brandId.HasValue)
+                query = query.Where(c => c.BrandId == brandId.Value);
+
+            if (minPrice.HasValue)
+                query = query.Where(c => c.CurrentPrice >= minPrice.Value);
+
+            if (maxPrice.HasValue)
+                query = query.Where(c => c.CurrentPrice <= maxPrice.Value);
+
+            if (fuelType.HasValue)
+                query = query.Where(c => (int)c.FuelType == fuelType.Value);
+
+            if (transmissionType.HasValue)
+                query = query.Where(c => (int)c.TransmissionType == transmissionType.Value);
+
+            // -- YENİ EKLENEN İKİNCİ EL FİLTRELERİ --
+            if (bodyType.HasValue)
+                query = query.Where(c => (int)c.BodyType == bodyType.Value);
+
+            if (drivetrain.HasValue)
+                query = query.Where(c => (int)c.Drivetrain == drivetrain.Value);
+
+            if (isTradeInEligible.HasValue)
+                query = query.Where(c => c.IsTradeInEligible == isTradeInEligible.Value);
+
+            if (heavyDamageRecord.HasValue)
+                query = query.Where(c => c.HeavyDamageRecord == heavyDamageRecord.Value);
+
+            ViewBag.Brands = _context.Brands.ToList();
+            
+            // Sonuçları fiyata göre veya eklenme tarihine göre sıralayabilirsin
+            var cars = query.OrderByDescending(c => c.Id).ToList();
+
+            return View(cars);
         }
     }
 }
