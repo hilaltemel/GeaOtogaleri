@@ -1,98 +1,180 @@
-@model IEnumerable<Car_Dealership.Models.Appointment>
+@model List<Car_Dealership.Models.Appointment>
+
 @{
-    ViewData[index: "Title"] = "Müşteri Randevuları";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Gelen Randevu Talepleri";
 }
 
-<div class="container mt-5 mb-5">
+<div class="container-fluid mt-4 mb-5">
     
-    <!-- Sayfa Başlığı -->
-    <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom" style="border-bottom-color: #112848 !important;">
-        <h3 class="fw-bold m-0" style="color: #112848;">
-            <i class="bi bi-calendar-check me-2"></i>Gelen Randevu Talepleri
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="fw-bold text-dark mb-0">
+            <i class="bi bi-calendar-check me-2"></i>Randevu Yönetimi
         </h3>
-        <span class="badge rounded-pill bg-light text-dark border py-2 px-3 shadow-sm">
-            Toplam: @Model.Count() Randevu
-        </span>
+        <span class="badge bg-primary px-3 py-2 fs-6 rounded-pill shadow-sm">Toplam: @Model.Count Kayıt</span>
     </div>
 
-    <!-- Randevu Tablosu -->
-    <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
-        <div class="card-body p-0">
-            <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0">
-                    <thead style="background-color: #112848; color: white;">
-                        <tr>
-                            <th class="px-4 py-3 fw-normal">Müşteri Adı Soyadı</th>
-                            <th class="py-3 fw-normal">İletişim</th>
-                            <th class="py-3 fw-normal">Randevu Tarihi ve Saati</th>
-                            <th class="py-3 fw-normal">İlgilenilen Araç</th>
-                            <th class="px-4 py-3 fw-normal text-end">Talep Oluşturma Tarihi</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @if (!Model.Any())
-                        {
-                            <tr>
-                                <td colspan="5" class="text-center py-5 text-muted">
-                                    <i class="bi bi-inbox fs-2 d-block mb-2"></i>
-                                    Henüz hiç randevu talebi bulunmuyor.
-                                </td>
-                            </tr>
-                        }
-                        else
-                        {
-                            foreach (var item in Model)
-                            {
-                                // Zaten C# bloğunda olduğumuz için doğrudan kodu yazıyoruz
-                                bool isPast = false;
-                                
-                                if (!string.IsNullOrEmpty(item.AppointmentTime))
+    <!-- EĞER BİR BAŞARI MESAJI VARSA GÖSTER (İptal işlemi sonrası için) -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
+            <i class="bi bi-check-circle-fill me-2"></i> @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="row">
+        <!-- SOL KOLON: FİLTRELEME -->
+        <div class="col-lg-3 mb-4">
+            <div class="card shadow-sm border-0 bg-light">
+                <div class="card-header bg-white border-bottom-0 pt-4 pb-0">
+                    <h5 class="fw-bold" style="color: #112848;"><i class="bi bi-funnel-fill me-2"></i>Filtrele</h5>
+                </div>
+                <div class="card-body">
+                    <form asp-controller="Admin" asp-action="Appointments" method="get">
+                        
+                        <!-- Arama -->
+                        <div class="mb-3">
+                            <label class="form-label text-muted small fw-bold">Müşteri Arama</label>
+                            <input type="text" name="searchKeyword" class="form-control form-control-sm" placeholder="İsim, Soyisim veya Telefon" value="@Context.Request.Query["searchKeyword"]">
+                        </div>
+
+                        <!-- Tarih -->
+                        <div class="mb-3">
+                            <label class="form-label text-muted small fw-bold">Tarih</label>
+                            <input type="date" name="filterDate" class="form-control form-control-sm" value="@Context.Request.Query["filterDate"]">
+                        </div>
+
+                        <!-- Saat -->
+                        <div class="mb-3">
+                            <label class="form-label text-muted small fw-bold">Saat</label>
+                            <select name="filterTime" class="form-select form-select-sm">
+                                <option value="">Tüm Saatler</option>
+                                <option value="08:00 - 09:00" selected="@(Context.Request.Query["filterTime"] == "08:00 - 09:00")">08:00 - 09:00</option>
+                                <option value="09:00 - 10:00" selected="@(Context.Request.Query["filterTime"] == "09:00 - 10:00")">09:00 - 10:00</option>
+                                <option value="10:00 - 11:00" selected="@(Context.Request.Query["filterTime"] == "10:00 - 11:00")">10:00 - 11:00</option>
+                                <option value="11:00 - 12:00" selected="@(Context.Request.Query["filterTime"] == "11:00 - 12:00")">11:00 - 12:00</option>
+                                <option value="12:00 - 13:00" selected="@(Context.Request.Query["filterTime"] == "12:00 - 13:00")">12:00 - 13:00</option>
+                                <option value="13:00 - 14:00" selected="@(Context.Request.Query["filterTime"] == "13:00 - 14:00")">13:00 - 14:00</option>
+                                <option value="14:00 - 15:00" selected="@(Context.Request.Query["filterTime"] == "14:00 - 15:00")">14:00 - 15:00</option>
+                                <option value="15:00 - 16:00" selected="@(Context.Request.Query["filterTime"] == "15:00 - 16:00")">15:00 - 16:00</option>
+                                <option value="16:00 - 17:00" selected="@(Context.Request.Query["filterTime"] == "16:00 - 17:00")">16:00 - 17:00</option>
+                                <option value="17:00 - 18:00" selected="@(Context.Request.Query["filterTime"] == "17:00 - 18:00")">17:00 - 18:00</option>
+                            </select>
+                        </div>
+
+                        <!-- Araç -->
+                        <div class="mb-3">
+                            <label class="form-label text-muted small fw-bold">İlgilenilen Araç</label>
+                            <select name="filterCarId" class="form-select form-select-sm">
+                                <option value="">Tüm Araçlar</option>
+                                @if(ViewBag.Cars != null)
                                 {
-                                    isPast = item.AppointmentDate.Date < DateTime.Now.Date || 
-                                            (item.AppointmentDate.Date == DateTime.Now.Date && int.Parse(item.AppointmentTime.Split(':')[0]) <= DateTime.Now.Hour);
+                                    foreach (var car in ViewBag.Cars)
+                                    {
+                                        var carName = $"{car.Brand?.Name} {car.CarModel?.Name}";
+                                        var isSelected = Context.Request.Query["filterCarId"] == car.Id.ToString() ? "selected" : null;
+                                        <option value="@car.Id" selected="@isSelected">@carName</option>
+                                    }
                                 }
-                                
-                                <tr class="@(isPast ? "bg-light" : "")" style="@(isPast ? "opacity: 0.7;" : "")">
-                                    
-                                    <!-- İsim -->
-                                    <td class="px-4 py-3 fw-bold text-dark">@item.FirstName @item.LastName</td>
-                                    
-                                    <!-- Telefon -->
-                                    <td class="py-3">
-                                        <a href="tel:@item.PhoneNumber" class="text-decoration-none text-primary fw-semibold">
-                                            <i class="bi bi-telephone-fill me-1 small"></i> @item.PhoneNumber
-                                        </a>
-                                    </td>
-                                    
-                                    <!-- Randevu Zamanı -->
-                                    <td class="py-3">
-                                        <span class="badge @(isPast ? "bg-secondary" : "bg-success") rounded-pill px-3 py-2 shadow-sm">
-                                            <i class="bi bi-clock me-1"></i> @item.AppointmentDate.ToString(format: "dd.MM.yyyy") | @item.AppointmentTime
-                                        </span>
-                                    </td>
-                                    
-                                    <!-- Araç -->
-                                    <td class="py-3">
-                                        @if (item.Car != null)
-                                        {
-                                            <span class="fw-bold" style="color: #112848;">@item.Car.Brand?.Name @item.Car.CarModel?.Name</span>
-                                        }
-                                        else
-                                        {
-                                            <span class="text-muted fst-italic">Belirtilmedi</span>
-                                        }
-                                    </td>
-                                    
-                                    <!-- Oluşturulma Anı -->
-                                    <td class="px-4 py-3 text-end text-muted small">
-                                        @item.CreatedAt.ToString(format: "dd.MM.yyyy HH:mm")
-                                    </td>
+                            </select>
+                        </div>
+
+                        <!-- Durum (Aktif / İptal) -->
+                        <div class="mb-4">
+                            <label class="form-label text-muted small fw-bold">Randevu Durumu</label>
+                            <select name="statusFilter" class="form-select" onchange="this.form.submit()">
+                                <option value="active">Aktif Randevular</option>
+                                <option value="past">Geçmiş Randevular</option>
+                                <option value="cancelled">İptal Edilenler</option>
+                                <option value="all">Tümü</option>
+                            </select>
+                        </div>
+
+                        <button type="submit" class="btn text-white w-100 fw-bold mb-2" style="background-color: #112848;">Filtrele</button>
+                        <a asp-action="Appointments" class="btn btn-outline-secondary w-100 small">Filtreleri Temizle</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- SAĞ KOLON: RANDEVU TABLOSU -->
+        <div class="col-lg-9">
+            <div class="card shadow-sm border-0">
+                <div class="card-body p-0 table-responsive">
+                    
+                    @if (Model.Any())
+                    {
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light text-muted">
+                                <tr>
+                                    <th class="ps-4">Müşteri</th>
+                                    <th>İletişim</th>
+                                    <th>Tarih ve Saat</th>
+                                    <th>İlgilenilen Araç</th>
+                                    <th class="text-end pe-4">İşlemler</th>
                                 </tr>
-                            }
-                        }
-                    </tbody>
-                </table>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model)
+                                {
+                                    // İptal edildiyse satırı soluklaştır (text-muted ve opacity)
+                                    var rowClass = item.IsCancelled ? "text-muted opacity-75" : "";
+                                    
+                                    <tr class="@rowClass">
+                                        <td class="ps-4 fw-medium">
+                                            @item.FirstName @item.LastName
+                                            @if (item.IsCancelled)
+                                            {
+                                                <span class="badge bg-danger ms-2" style="font-size: 0.65rem;">İPTAL</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            <a href="tel:@item.PhoneNumber" class="text-decoration-none @(item.IsCancelled ? "text-muted" : "text-primary")">
+                                                <i class="bi bi-telephone-fill me-1 small"></i>@item.PhoneNumber
+                                            </a>
+                                        </td>
+                                        <td>
+                                            <div class="badge @(item.IsCancelled ? "bg-secondary" : "bg-success") text-white px-2 py-1 rounded">
+                                                <i class="bi bi-calendar-event me-1"></i> @item.AppointmentDate.ToString("dd.MM.yyyy") | @item.AppointmentTime
+                                            </div>
+                                        </td>
+                                        <td>
+                                            @if (item.Car != null)
+                                            {
+                                                <span class="fw-bold">@item.Car.Brand?.Name @item.Car.CarModel?.Name</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-secondary fst-italic small">Belirtilmedi</span>
+                                            }
+                                        </td>
+                                        <td class="text-end pe-4">
+                                            <!-- EĞER RANDEVU AKTİFSE İPTAL BUTONUNU GÖSTER -->
+                                            @if (!item.IsCancelled)
+                                            {
+                                                <form asp-controller="Admin" asp-action="CancelAppointment" method="post" style="display:inline;">
+                                                    <input type="hidden" name="id" value="@item.Id" />
+                                                    <button type="submit" class="btn btn-sm btn-outline-danger shadow-none" onclick="return confirm('Bu randevuyu iptal etmek istediğinize emin misiniz?');">
+                                                        <i class="bi bi-x-circle me-1"></i>İptal Et
+                                                    </button>
+                                                </form>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    }
+                    else
+                    {
+                        <!-- KAYIT YOK EKRANI -->
+                        <div class="text-center p-5">
+                            <i class="bi bi-inbox text-muted" style="font-size: 3rem;"></i>
+                            <h5 class="mt-3 text-muted">Arama kriterlerine uygun randevu bulunamadı.</h5>
+                            <a asp-action="Appointments" class="btn btn-outline-primary mt-2">Tüm Randevuları Gör</a>
+                        </div>
+                    }
+                </div>
             </div>
         </div>
     </div>

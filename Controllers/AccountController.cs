@@ -77,7 +77,8 @@ namespace Car_Dealership.Controllers
                 var claims = new List<Claim>
                 {
                     new Claim(ClaimTypes.Name, user.UserName ?? string.Empty),
-                    new Claim(ClaimTypes.Role, user.Role ?? "Customer") // Veritabanındaki Admin veya Customer rolü
+                    new Claim(ClaimTypes.Role, user.Role ?? "Customer"), // Veritabanındaki Admin veya Customer rolü
+                    new Claim(ClaimTypes.NameIdentifier, user.Id.ToString())
                 };
 
                 var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);

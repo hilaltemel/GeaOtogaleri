@@ -1,5 +1,32 @@
-﻿@using Microsoft.EntityFrameworkCore
-@inject Car_Dealership.Models.ApplicationDbContext _context
+﻿@using System.Security.Claims
+@using Microsoft.EntityFrameworkCore
+@using Car_Dealership.Models
+@inject ApplicationDbContext _context
+
+@{
+    var discountNotifications = new List<Car_Dealership.Models.Car>();
+    
+    if (User.Identity != null && User.Identity.IsAuthenticated)
+    {
+        var userIdStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (!string.IsNullOrEmpty(userIdStr))
+        {
+            long currentUserId = long.Parse(userIdStr);
+            
+            // Favorilerdeki araçlardan "İlk Fiyatı dolu olan ve Şu anki Fiyatı İlk Fiyatından düşük olanları" (İndirimdekileri) getir
+            discountNotifications = _context.Favorites
+                .Include(f => f.Car)
+                    .ThenInclude(c => c!.Brand)
+                .Include(f => f.Car)
+                    .ThenInclude(c => c!.CarModel)
+                .Include(f => f.Car)
+                    .ThenInclude(c => c!.Images)
+                .Where(f => f.UserId == currentUserId && f.Car != null && f.Car.FirstPrice != null && f.Car.CurrentPrice < f.Car.FirstPrice)
+                .Select(f => f.Car!)
+                .ToList();
+        }
+    }
+}
 
 <!DOCTYPE html>
 <html lang="en">
@@ -84,15 +111,78 @@
                     <div class="d-flex align-items-center justify-content-end w-50">
                         
                         <!-- Büyüteç İkonlu ve Uzatılmış Arama Formu -->
-                        <form asp-controller="Admin" asp-action="Index" method="get" class="d-flex me-4" style="width: 280px;">
-                            <div class="input-group shadow-sm rounded-pill">
-                                <input class="form-control rounded-start-pill border-end-0 bg-light" type="search" placeholder="Araç, marka veya model ara..." aria-label="Search" name="searchQuery">
-                                <button class="btn btn-light bg-light rounded-end-pill border border-start-0 text-muted d-flex align-items-center justify-content-center" type="submit">
-                                    <img src="~/images/searchIcon.png" alt="Ara" style="width: 18px; height: 18px; opacity: 0.7;">
-                                </button>
-                            </div>
+                        <form class="d-flex mx-auto" style="max-width: 400px; width: 100%;" asp-controller="Cars" asp-action="Search" method="get">
+                            <input name="searchQuery" class="form-control me-2 rounded-pill shadow-sm border-0 bg-light" type="search" placeholder="Araç, marka veya model ara..." aria-label="Search">
+                            <button class="btn btn-outline-dark rounded-pill border-0 shadow-sm px-4" type="submit">
+                                <i class="bi bi-search"></i>
+                            </button>
                         </form>
-                        
+                        <!-- BİLDİRİM ÇANI -->
+                        <div class="dropdown me-3">
+                            <!-- onclick olayını ve id'yi ekledik -->
+                            <a class="text-dark position-relative text-decoration-none" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" onclick="markAsRead(@discountNotifications.Count)">
+                                <i class="bi bi-bell-fill fs-5" style="color: #112848;"></i>
+                                
+                                @if (discountNotifications.Any())
+                                {
+                                    <!-- Rozete id="notificationBadge" verdik ki JavaScript ile bulup gizleyebilelim -->
+                                    <span id="notificationBadge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger border border-light" style="font-size: 0.60rem;">
+                                        @discountNotifications.Count
+                                        <span class="visually-hidden">okunmamış bildirimler</span>
+                                    </span>
+                                }
+                            </a>
+
+                            <!-- AÇILIR MENÜ (Dropdown İçeriği) -->
+                            <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 mt-2" style="width: 320px; max-height: 400px; overflow-y: auto; border-radius: 12px;">
+                                <li><h6 class="dropdown-header fw-bold text-uppercase" style="color: #112848; letter-spacing: 1px;">Bildirimler</h6></li>
+                                <li><hr class="dropdown-divider"></li>
+
+                                @if (discountNotifications.Any())
+                                {
+                                    foreach (var car in discountNotifications)
+                                    {
+                                        var kapakResmi = car.Images?.FirstOrDefault()?.ImagePath ?? "default-car.jpg";
+                                        
+                                        <li>
+                                            <!-- Tıklayınca doğrudan aracın detay sayfasına yönlendirir -->
+                                            <a class="dropdown-item d-flex align-items-center py-3 border-bottom text-wrap" asp-controller="Cars" asp-action="Details" asp-route-id="@car.Id">
+                                                
+                                                <!-- Araç Görseli -->
+                                                <div class="me-3 position-relative">
+                                                    <img src="~/images/@kapakResmi" class="rounded shadow-sm" style="width: 60px; height: 60px; object-fit: cover;" alt="Araç Görseli">
+                                                    <span class="position-absolute top-0 start-0 translate-middle badge bg-danger rounded-circle p-1"><i class="bi bi-arrow-down-short"></i></span>
+                                                </div>
+                                                
+                                                <!-- Bildirim Metni ve Fiyatlar -->
+                                                <div>
+                                                    <p class="mb-1 fw-bold text-dark" style="font-size: 0.85rem;">
+                                                        @car.Brand?.Name @car.CarModel?.Name
+                                                    </p>
+                                                    <p class="mb-0 text-success fw-bold d-flex align-items-center" style="font-size: 0.85rem;">
+                                                        Yeni: @car.CurrentPrice.ToString("N0") ₺
+                                                    </p>
+                                                    <p class="mb-0 text-muted text-decoration-line-through" style="font-size: 0.75rem;">
+                                                        Eski: @car.FirstPrice?.ToString("N0") ₺
+                                                    </p>
+                                                </div>
+                                            </a>
+                                        </li>
+                                    }
+                                }
+                                else
+                                {
+                                    <!-- Eğer indirimde araç yoksa çıkacak boş durum ekranı -->
+                                    <li>
+                                        <div class="dropdown-item text-muted text-center py-4 text-wrap pointer-event-none">
+                                            <i class="bi bi-bell-slash fs-3 d-block mb-2 opacity-50"></i>
+                                            <span style="font-size: 0.85rem;">Şu an favori araçlarınızda bir indirim bulunmuyor.</span>
+                                        </div>
+                                    </li>
+                                }
+                            </ul>
+                        </div>
+
                         <!-- Orijinal Profil Menüsü / Giriş ve Kayıt Alanı -->
                         @if (User.Identity!.IsAuthenticated)
                         {
@@ -106,6 +196,12 @@
                                     <li>
                                         <a class="dropdown-item py-2" asp-controller="Account" asp-action="Profile">
                                             <i class="bi bi-shield-lock me-2 text-secondary"></i>Profil Ayarları
+                                        </a>
+                                    </li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <a class="dropdown-item py-2" asp-controller="Cars" asp-action="Favorites">
+                                            <i class="bi bi-heart me-2"></i>Favorilerim
                                         </a>
                                     </li>
                                     <li><hr class="dropdown-divider"></li>
@@ -263,7 +359,7 @@
 
                                     foreach(var car in availableCars)
                                     {
-                                        var carCondition = car.IsSecondHand ? "İkinci El" : "Sıfır";
+                                        var carCondition = car.IsUsedCar ? "İkinci El" : "Sıfır";
                                         <option value="@car.Id">@car.Brand?.Name @car.CarModel?.Name (@car.Year) - @carCondition</option>
                                     }
                                 }
@@ -348,6 +444,57 @@
             });
         }
     });
+        function toggleFavorite(event, carId, buttonElement) {
+        // 1. Tıklamanın karta veya linke sıçramasını kesin olarak durdurur!
+        event.preventDefault();
+        event.stopPropagation();
+
+        var icon = buttonElement.querySelector('i');
+        
+        fetch(`/Cars/ToggleFavorite?carId=${carId}`, {
+            method: 'POST'
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                if (data.isFavorite) {
+                    icon.classList.remove('bi-heart', 'text-muted');
+                    icon.classList.add('bi-heart-fill', 'text-danger');
+                } else {
+                    icon.classList.remove('bi-heart-fill', 'text-danger');
+                    icon.classList.add('bi-heart', 'text-muted');
+                }
+            } else {
+                alert(data.message); // Eğer giriş yapmamışsa uyarı ver
+            }
+        })
+        .catch(error => console.error('Hata:', error));
+    }
+</script>
+<script>
+    // 1. Sayfa yüklendiğinde çalışacak kod:
+    document.addEventListener("DOMContentLoaded", function () {
+        var currentCount = @discountNotifications.Count;
+        var savedCount = localStorage.getItem('readDiscountCount');
+
+        // Eğer kullanıcı bu sayıdaki bildirimi daha önce gördüyse (tıkladıysa), rozeti baştan gizle
+        if (savedCount && parseInt(savedCount) >= currentCount) {
+            var badge = document.getElementById('notificationBadge');
+            if (badge) {
+                badge.style.display = 'none';
+            }
+        }
+    });
+
+    // 2. Çana tıklandığında çalışacak kod:
+    function markAsRead(count) {
+        var badge = document.getElementById('notificationBadge');
+        if (badge) {
+            badge.style.display = 'none'; // Kırmızı rozeti ekrandan anında sil
+        }
+        // Kullanıcının tarayıcısına "Bu kişi X adet indirimi gördü" bilgisini kaydet
+        localStorage.setItem('readDiscountCount', count);
+    }
 </script>
 <script>
     // ARABA SEÇİMİNİ OTOMATİK YAPAN BAĞIMSIZ FONKSİYON

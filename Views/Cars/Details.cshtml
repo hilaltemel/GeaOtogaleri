@@ -118,7 +118,7 @@
                 <h5 class="mb-4" style="color: #112848;"><i class="bi bi-info-circle me-2"></i>Temel Araç Bilgileri</h5>
                 <dl class="row mb-0" style="font-size: 0.95rem;">
                     <dt class="col-sm-4 text-muted">Araç Durumu</dt>
-                    <dd class="col-sm-8 fw-bold">@(Model.IsSecondHand ? "İkinci El" : "Sıfır")</dd>
+                    <dd class="col-sm-8 fw-bold">@(Model.IsUsedCar ? "İkinci El" : "Sıfır")</dd>
 
                     <dt class="col-sm-4 text-muted">Seri / Yıl</dt>
                     <dd class="col-sm-8">@Model.Series - @Model.Year</dd>
@@ -136,7 +136,7 @@
         </div>
 
         <!-- Sadece İkinci El İse Görünecek Alan -->
-        @if (Model.IsSecondHand)
+        @if (Model.IsUsedCar)
         {
             <div class="card mb-4 border-0 shadow-sm rounded-4" style="background-color: #f8f9fa;">
                 <div class="card-body p-4">

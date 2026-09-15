@@ -19,7 +19,7 @@ namespace Car_Dealership.Models;
         public decimal CurrentPrice { get; set; }
         public ICollection<CarImage>? Images { get; set; }  // ICollection, EF Core'da Bire-Çok (One-to-Many) ilişkisini kurar; bir arabanın birden fazla resmini tutan bir fotoğraf albümü gibi çalışır.
         public bool IsShowcase { get; set; } // Vitrin Aracı Mı?
-        public bool IsSecondHand { get; set; }
+        public bool IsUsedCar { get; set; }
         public string? Series { get; set; } 
         public int Year { get; set; }
         public short EnginePower { get; set; }

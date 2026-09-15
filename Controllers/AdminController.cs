@@ -61,20 +61,89 @@ namespace Car_Dealership.Controllers
             return View(cars.OrderByDescending(c => c.Id).ToList());
         }
         // RANDEVULAR LİSTESİ (Sadece Admin Görebilir)
-        public IActionResult Appointments()
+        // 1. RANDEVULAR LİSTESİ VE FİLTRELEME
+        public IActionResult Appointments(string searchKeyword, DateTime? filterDate, string filterTime, long? filterCarId, string statusFilter)
         {
-            // Veritabanındaki tüm randevuları, araç bilgileriyle birlikte çeker
-            // En yakın (veya en yeni) randevuyu en üstte görmek için tarihe göre sıralar
-            var appointments = _context.Appointments
+            var query = _context.Appointments
                 .Include(a => a.Car)
                     .ThenInclude(c => c!.Brand)
                 .Include(a => a.Car)
                     .ThenInclude(c => c!.CarModel)
+                .AsQueryable();
+
+            // -- ARAMA VE FİLTRELEME İŞLEMLERİ --
+
+            // 1. İsim veya Telefona göre arama
+            if (!string.IsNullOrEmpty(searchKeyword))
+            {
+                var culture = new System.Globalization.CultureInfo("tr-TR");
+                string lowerSearch = searchKeyword.ToLower(culture);
+
+                query = query.Where(a => (a.FirstName != null && a.FirstName.ToLower().Contains(lowerSearch)) || 
+                                        (a.LastName != null && a.LastName.ToLower().Contains(lowerSearch)) || 
+                                        (a.PhoneNumber != null && a.PhoneNumber.ToLower().Contains(lowerSearch)));
+            }
+
+            // 2. Tarihe göre filtreleme
+            if (filterDate.HasValue)
+                query = query.Where(a => a.AppointmentDate.Date == filterDate.Value.Date);
+
+            // 3. Saate göre filtreleme
+            if (!string.IsNullOrEmpty(filterTime))
+                query = query.Where(a => a.AppointmentTime == filterTime);
+
+            // 4. İlgilenilen Araca göre filtreleme
+            if (filterCarId.HasValue)
+                query = query.Where(a => a.CarId == filterCarId.Value);
+
+            // 5. Duruma göre filtreleme (Aktif, Geçmiş, İptal Edilmiş, Tümü)
+            var today = DateTime.Today;
+
+            if (statusFilter == "cancelled")
+            {
+                // Sadece iptal edilenler
+                query = query.Where(a => a.IsCancelled == true);
+            }
+            else if (statusFilter == "all")
+            {
+                // Tümünü getir, hiçbir filtreleme yapma
+            }
+            else if (statusFilter == "past")
+            {
+                // Geçmiş Randevular: İptal EDİLMEMİŞ ve tarihi bugünden KÜÇÜK olanlar
+                query = query.Where(a => a.IsCancelled == false && a.AppointmentDate.Date < today);
+            }
+            else
+            {
+                // Varsayılan (Aktif Randevular): İptal EDİLMEMİŞ ve tarihi bugünden BÜYÜK veya EŞİT olanlar
+                query = query.Where(a => a.IsCancelled == false && a.AppointmentDate.Date >= today);
+            }
+            // View tarafındaki araçlar açılır menüsü (Select) için araba listesini gönderiyoruz
+            ViewBag.Cars = _context.Cars.Include(c => c.Brand).Include(c => c.CarModel).ToList();
+            
+            // Filtrelenmiş sonuçları tarihe göre sıralayıp View'a gönder
+            var appointments = query
                 .OrderByDescending(a => a.AppointmentDate)
                 .ThenByDescending(a => a.AppointmentTime)
                 .ToList();
 
             return View(appointments);
+        }
+
+        // 2. RANDEVU İPTAL ETME METODU
+        [HttpPost]
+        public IActionResult CancelAppointment(int id) 
+        {
+            var appointment = _context.Appointments.Find(id);
+            if (appointment != null)
+            {
+                appointment.IsCancelled = true; // Veriyi silmiyoruz, iptal edildi olarak işaretliyoruz
+                _context.SaveChanges();
+                TempData["SuccessMessage"] = "Randevu başarıyla iptal edildi.";
+            }
+            
+            // İşlem bitince admini aynı sayfaya, filtrelerini bozmadan geri döndür
+            return Redirect(Request.Headers["Referer"].ToString() ?? "/Admin/Appointments");
         }
         // GET: Admin/Details/5
         public IActionResult Details(int? id)
@@ -170,7 +239,7 @@ namespace Car_Dealership.Controllers
             existingCar.IsShowcase = car.IsShowcase;
             
             // --- YENİ EKLENEN ORTAK ÖZELLİKLER ---
-            existingCar.IsSecondHand = car.IsSecondHand;
+            existingCar.IsUsedCar = car.IsUsedCar;
             existingCar.Series = car.Series;
             existingCar.Year = car.Year;
             existingCar.EnginePower = car.EnginePower;

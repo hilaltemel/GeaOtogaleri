@@ -25,7 +25,22 @@ public class HomeController : Controller
                                 .Include(c => c.CarModel)
                                 .Where(c => c.CurrentPrice < c.FirstPrice)
                                 .ToList();
-
+                                
+            // --- FAVORİ KONTROLÜ ---
+        List<long> userFavIds = new List<long>();
+        if (User.Identity != null && User.Identity.IsAuthenticated)
+        {
+            var userIdStr = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            if (!string.IsNullOrEmpty(userIdStr))
+            {
+                long currentUserId = long.Parse(userIdStr);
+                userFavIds = _context.Favorites
+                    .Where(f => f.UserId == currentUserId)
+                    .Select(f => f.CarId)
+                    .ToList();
+            }
+        }
+        ViewBag.UserFavIds = userFavIds;
         return View(campaignCars);
     }
 
@@ -58,7 +73,7 @@ public class HomeController : Controller
                                 .Include(c => c.Images)
                                 .Include(c => c.Brand)
                                 .Include(c => c.CarModel)
-                                .Where(c => c.IsSecondHand == true) // Sadece ikinci el olanlar
+                                .Where(c => c.IsUsedCar == true) // Sadece ikinci el olanlar
                                 .OrderByDescending(c => c.Id)
                                 .Take(4)
                                 .ToList();
@@ -70,6 +85,21 @@ public class HomeController : Controller
         ViewBag.UsedCars = usedCars; // Yeni eklediğimiz kısım
         ViewData["LatestCars"] = latestCars;
         
+        // --- FAVORİ KONTROLÜ ---
+        List<long> userFavIds = new List<long>();
+        if (User.Identity != null && User.Identity.IsAuthenticated)
+        {
+            var userIdStr = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            if (!string.IsNullOrEmpty(userIdStr))
+            {
+                long currentUserId = long.Parse(userIdStr);
+                userFavIds = _context.Favorites
+                    .Where(f => f.UserId == currentUserId)
+                    .Select(f => f.CarId)
+                    .ToList();
+            }
+        }
+        ViewBag.UserFavIds = userFavIds;
         return View();
     }
     public IActionResult Privacy()
@@ -121,11 +151,11 @@ public class HomeController : Controller
     public IActionResult GetBookedTimes(DateTime date)
     {
         // Seçilen tarihteki dolu olan saatlerin listesini döndürür
-        var bookedTimes = _context.Appointments
-            .Where(a => a.AppointmentDate.Date == date.Date)
-            .Select(a => a.AppointmentTime)
-            .ToList();
+        var bookedHours = _context.Appointments
+        .Where(a => a.AppointmentDate.Date == date.Date && a.IsCancelled == false)
+        .Select(a => a.AppointmentTime)
+        .ToList();
 
-        return Json(bookedTimes);
+        return Json(bookedHours);
     }
 }

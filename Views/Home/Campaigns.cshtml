@@ -30,7 +30,16 @@
                 </div>
                 <div class="col-lg-4 d-flex align-items-center" style="background-color: #f8f9fa;">
                     <div class="card-body p-5">
-                        <span class="badge bg-danger px-3 py-2 mb-4 fs-6 shadow-sm">%@featuredDiscount İNDİRİM</span>
+                        <span class="badge position-absolute " style="background-color: #112848; top: 10px; left: 10px; z-index: 10;">
+                                %@featuredDiscount İndirim
+                            </span>
+                            @{
+                                List<long>? favIds = ViewBag.UserFavIds as List<long> ?? new List<long>();
+                                string featuredHeartClass = favIds.Contains(featuredCar.Id) ? "bi-heart-fill text-danger" : "bi-heart text-muted";
+                            }
+                            <button onclick="toggleFavorite(event, @featuredCar.Id, this)" class="btn btn-light rounded-circle shadow-sm position-absolute d-flex justify-content-center align-items-center" style="top: 10px; right: 10px; width: 40px; height: 40px; z-index: 10; border: none;">
+                                <i class="bi @featuredHeartClass fs-5"></i>
+                            </button>
                         <h6 class="text-muted text-uppercase mb-1" style="letter-spacing: 1px;">@featuredCar.Brand?.Name</h6>
                         <h2 class="fw-bold text-dark mb-4">@featuredCar.CarModel?.Name</h2>
                         
@@ -68,9 +77,17 @@
                             <div class="card h-100 shadow-sm border-0 transition-hover position-relative">
                                 <a asp-controller="Cars" asp-action="Details" asp-route-id="@car.Id" class="text-dark text-decoration-none h-100 d-block">
                                 <!-- Kırmızı İndirim Rozeti -->
-                                <div class="position-absolute top-0 end-0 m-3 z-1">
-                                    <span class="badge bg-danger shadow-sm py-2 px-3 fw-bold">%@discount</span>
-                                </div>
+                                <span class="badge position-absolute " style="background-color: #112848; top: 10px; left: 10px; z-index: 10;">
+                                    %@discount İndirim
+                                </span>
+                                @{
+                                    List<long>? favIds = ViewBag.UserFavIds as List<long> ?? new List<long>();
+                                    // Eğer döngüde araba adını 'item' yaptıysan item.Id, 'car' yaptıysan car.Id yaz:
+                                    string heartClass = favIds.Contains(car.Id) ? "bi-heart-fill text-danger" : "bi-heart text-muted";
+                                }
+                                <button onclick="toggleFavorite(event, @car.Id, this)" class="btn btn-light rounded-circle shadow-sm position-absolute d-flex justify-content-center align-items-center" style="top: 10px; right: 10px; width: 40px; height: 40px; z-index: 10; border: none;">
+                                    <i class="bi @heartClass fs-5"></i>
+                                </button>
 
                                 <!-- Kapak Resmi -->
                                 @{ var img = car.Images?.FirstOrDefault()?.ImagePath; }

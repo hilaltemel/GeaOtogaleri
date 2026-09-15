@@ -30,5 +30,7 @@ namespace Car_Dealership.Models
         public Car? Car { get; set; }
         
         public DateTime CreatedAt { get; set; } = DateTime.Now;
+        // Randevu iptal edildi mi? (Yeni eklenen randevular varsayılan olarak false yani aktiftir)
+        public bool IsCancelled { get; set; } = false;
     }
 }

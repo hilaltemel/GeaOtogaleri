@@ -62,6 +62,14 @@
                     
                     <!-- SADECE RESİM VE YAZILAR LİNK İÇİNDE OLACAK -->
                     <a asp-controller="Cars" asp-action="Details" asp-route-id="@car.Id" class="text-dark text-decoration-none d-flex flex-column" style="flex: 1;">
+                        @{
+                            var favIds = ViewBag.UserFavIds as List<long> ?? new List<long>();
+                            // Eğer döngüde araba adını 'item' yaptıysan item.Id, 'car' yaptıysan car.Id yaz:
+                            string heartClass = favIds.Contains(car.Id) ? "bi-heart-fill text-danger" : "bi-heart text-muted";
+                        }
+                        <button onclick="toggleFavorite(event, @car.Id, this)" class="btn btn-light rounded-circle shadow-sm position-absolute d-flex justify-content-center align-items-center" style="top: 10px; right: 10px; width: 40px; height: 40px; z-index: 10; border: none;">
+                            <i class="bi @heartClass fs-5"></i>
+                        </button>
                         
                         <!-- Vitrin Resmi -->
                         @{ string? kapakResmi = car.Images?.FirstOrDefault()?.ImagePath; }
@@ -120,6 +128,15 @@
                 
                 <div class="card h-100 shadow-sm border-0 transition-hover">
                     <a asp-controller="Cars" asp-action="Details" asp-route-id="@car.Id" class="text-dark text-decoration-none h-100 d-block">
+                        @{
+                            var favIds = ViewBag.UserFavIds as List<long> ?? new List<long>();
+                            // Eğer döngüde araba adını 'item' yaptıysan item.Id, 'car' yaptıysan car.Id yaz:
+                            string heartClass = favIds.Contains(car.Id) ? "bi-heart-fill text-danger" : "bi-heart text-muted";
+                        }
+                        <button onclick="toggleFavorite(event, @car.Id, this)" class="btn btn-light rounded-circle shadow-sm position-absolute d-flex justify-content-center align-items-center" style="top: 10px; right: 10px; width: 40px; height: 40px; z-index: 10; border: none;">
+                            <i class="bi @heartClass fs-5"></i>
+                        </button>
+                        
                         <!-- Resim -->
                         @{ var kapakResmi = car.Images?.FirstOrDefault()?.ImagePath; }
                         @if (!string.IsNullOrEmpty(kapakResmi))
@@ -176,9 +193,17 @@
                         
                             <!-- Dinamik Yüzde Hesaplama ve Renkli Rozet -->
                             @{ var discount = (int)Math.Round(((car.FirstPrice!.Value - car.CurrentPrice) / car.FirstPrice!.Value) * 100); }
-                            <span class="badge position-absolute top-0 end-0 m-3 px-3 py-2 rounded-pill shadow-sm" style="background-color: #112848; z-index: 2;">
+                            <span class="badge position-absolute " style="background-color: #112848; top: 10px; left: 10px; z-index: 10;">
                                 %@discount İndirim
                             </span>
+                            @{
+                            var favIds = ViewBag.UserFavIds as List<long> ?? new List<long>();
+                            // Eğer döngüde araba adını 'item' yaptıysan item.Id, 'car' yaptıysan car.Id yaz:
+                            string heartClass = favIds.Contains(car.Id) ? "bi-heart-fill text-danger" : "bi-heart text-muted";
+                            }
+                            <button onclick="toggleFavorite(event, @car.Id, this)" class="btn btn-light rounded-circle shadow-sm position-absolute d-flex justify-content-center align-items-center" style="top: 10px; right: 10px; width: 40px; height: 40px; z-index: 10; border: none;">
+                                <i class="bi @heartClass fs-5"></i>
+                            </button>
 
                             <img src="~/images/@car.Images?.FirstOrDefault()?.ImagePath" class="card-img-top rounded-top" style="height: 200px; object-fit: cover;" alt="@car.Brand?.Name">
 
@@ -229,6 +254,15 @@
                     <div class="col-md-3">
                         <div class="card border-0 shadow-sm h-100 rounded-3 transition-hover">
                             <a href="/Cars/Details/@car.Id" class="text-dark text-decoration-none">
+                                @{
+                                    var favIds = ViewBag.UserFavIds as List<long> ?? new List<long>();
+                                    // Eğer döngüde araba adını 'item' yaptıysan item.Id, 'car' yaptıysan car.Id yaz:
+                                    string heartClass = favIds.Contains(car.Id) ? "bi-heart-fill text-danger" : "bi-heart text-muted";
+                                }
+                                <button onclick="toggleFavorite(event, @car.Id, this)" class="btn btn-light rounded-circle shadow-sm position-absolute d-flex justify-content-center align-items-center" style="top: 10px; right: 10px; width: 40px; height: 40px; z-index: 10; border: none;">
+                                    <i class="bi @heartClass fs-5"></i>
+                                </button>
+                        
                                 
                                 <!-- Araç Görseli -->
                                 @if (car.Images != null && car.Images.Count > 0)
