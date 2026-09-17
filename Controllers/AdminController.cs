@@ -340,7 +340,7 @@ namespace Car_Dealership.Controllers
             // 1. ÖNCE ARABAYI KAYDET (ID Oluşması İçin)
             car.FirstPrice = car.CurrentPrice;
             _context.Cars.Add(car);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
             //car.Id al
 
             // 2. EĞER RESİMLER GELDİYSE ONLARI İŞLE
@@ -367,7 +367,7 @@ namespace Car_Dealership.Controllers
                     _context.CarImages.Add(carImage);
                 }
                 
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
             }
             return RedirectToAction(nameof(Index));
         }

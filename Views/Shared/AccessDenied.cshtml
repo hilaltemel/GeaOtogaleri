@@ -1,0 +1,33 @@
+@{
+    ViewData["Title"] = "Erişim Reddedildi";
+}
+
+<div class="container text-center mt-5 pt-5 mb-5 min-vh-100">
+    <div class="row justify-content-center mt-5">
+        <div class="col-md-6">
+            <!-- Kırmızı Kilit İkonu -->
+            <i class="bi bi-shield-lock-fill text-danger drop-shadow" style="font-size: 6rem;"></i>
+            
+            <h1 class="display-1 fw-bold mt-3" style="color: #112848;">403</h1>
+            <h3 class="fw-bold text-danger text-uppercase letter-spacing-1">Erişim Reddedildi</h3>
+            
+            <p class="text-muted mt-3 fs-5">
+                Üzgünüz, girmeye çalıştığınız bu sayfayı görüntülemek için yeterli yetkiniz bulunmuyor. Bu alan sadece yönetim ekibine özeldir.
+            </p>
+            
+            <hr class="w-50 mx-auto my-4">
+            
+            <p class="small text-muted mb-4">
+                Eğer bir yöneticiyseniz ve bu hatayı alıyorsanız, lütfen yetkili bir hesapla tekrar giriş yapmayı deneyin.
+            </p>
+
+            <a href="/" class="btn btn-outline-dark rounded-pill px-4 py-2 me-2 shadow-sm">
+                <i class="bi bi-house-door me-2"></i> Vitrine Dön
+            </a>
+            
+            <a href="/Account/Login" class="btn btn-primary rounded-pill px-4 py-2 shadow-sm">
+                <i class="bi bi-person-circle me-2"></i> Farklı Hesapla Giriş Yap
+            </a>
+        </div>
+    </div>
+</div>
